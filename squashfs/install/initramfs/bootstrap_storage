@@ -1,0 +1,167 @@
+#!/bin/sh
+
+PREREQ=""
+prereqs() {
+    echo "$PREREQ"
+}
+case $1 in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /scripts/functions
+
+echo "=== Initrd Storage Bootstrapper: Beginning Scan ==="
+
+# 1. Parse the kernel command line for the target persistence-label
+TARGET_LABEL="writable"
+for arg in $(cat /proc/cmdline); do
+    case "$arg" in
+        persistence-label=*)
+            TARGET_LABEL="${arg#*=}"
+            ;;
+    esac
+done
+
+# 2. If a partition with the target label already exists, we are done
+# Bypassing the local blkid cache to get absolute real-time storage state
+if blkid -p -u filesystem -L "${TARGET_LABEL}" >/dev/null 2>&1; then
+    echo "SUCCESS: Found existing partition with label '${TARGET_LABEL}'. Skipping initialization."
+    exit 0
+fi
+
+# 3. Find the first eligible physical storage disk (vd*, sd*, nvme*, mmcblk*)
+TARGET_DISK=""
+for dev in /sys/block/vd* /sys/block/sd* /sys/block/nvme*n[0-9] /sys/block/mmcblk[0-9]; do
+    if [ -e "$dev" ]; then
+        devname=$(basename "$dev")
+        if echo "$devname" | grep -qE "^(sr|loop)"; then
+            continue
+        fi
+        TARGET_DISK="/dev/${devname}"
+        break
+    fi
+done
+
+if [ -z "$TARGET_DISK" ]; then
+    echo "WARNING: No eligible local disks found. Cannot initialize storage."
+    exit 0
+fi
+
+echo "Targeting physical disk: ${TARGET_DISK}"
+
+case "$TARGET_DISK" in
+    *nvme*|*mmcblk*)
+        PARTITION="${TARGET_DISK}p1"
+        ;;
+    *)
+        PARTITION="${TARGET_DISK}1"
+        ;;
+esac
+
+# 4. If the partition block device doesn't exist, partition the disk
+if [ ! -b "$PARTITION" ]; then
+    echo "Partitioning ${TARGET_DISK}..."
+    
+    if command -v sfdisk >/dev/null 2>&1; then
+        printf "label: gpt\n,\n" | sfdisk "${TARGET_DISK}" >/dev/null 2>&1
+    elif command -v fdisk >/dev/null 2>&1; then
+        printf "g\nn\n1\n\n\nw\n" | fdisk "${TARGET_DISK}" >/dev/null 2>&1
+    else
+        echo "ERROR: Neither sfdisk nor fdisk is available in this initrd environment."
+        exit 0
+    fi
+
+    # Force the kernel to reread partition table
+    if command -v partprobe >/dev/null 2>&1; then
+        partprobe "${TARGET_DISK}"
+    elif command -v blockdev >/dev/null 2>&1; then
+        blockdev --rereadpt "${TARGET_DISK}"
+    fi
+
+    # Trigger targeted kernel event for this disk only to bypass udev queue race conditions
+    TARGET_NAME=$(basename "${TARGET_DISK}")
+    if [ -e "/sys/block/${TARGET_NAME}/uevent" ]; then
+        echo "add" > "/sys/block/${TARGET_NAME}/uevent"
+    fi
+
+    # Settle udev/mdev to build the physical /dev node
+    if command -v udevadm >/dev/null 2>&1; then
+        udevadm settle --timeout=10
+    elif command -v mdev >/dev/null 2>&1; then
+        mdev -s
+    else
+        sleep 3
+    fi
+fi
+
+# Explicitly wait for the newly partitioned block node to appear in /dev
+echo "Verifying '${PARTITION}' node exists..."
+for i in 1 2 3 4 5 6 7 8 9 10; do
+    if [ -b "$PARTITION" ]; then
+        break
+    fi
+    sleep 0.5
+done
+
+if [ ! -b "$PARTITION" ]; then
+    echo "ERROR: Partition device '${PARTITION}' failed to register."
+    exit 0
+fi
+
+# 5. Check if a valid ext4 signature is on the partition. If not, format it.
+FSTYPE=$(blkid -o value -s TYPE "$PARTITION" || echo "")
+if [ "$FSTYPE" != "ext4" ]; then
+    echo "Formatting ${PARTITION} as ext4 with label '${TARGET_LABEL}'..."
+    mkfs.ext4 -F -L "${TARGET_LABEL}" "$PARTITION"
+    
+    sync
+
+    # Force kernel to acknowledge the new filesystem signature
+    PART_NAME=$(basename "${PARTITION}")
+    if [ -e "/sys/class/block/${PART_NAME}/uevent" ]; then
+        echo "change" > "/sys/class/block/${PART_NAME}/uevent"
+    fi
+
+    if command -v udevadm >/dev/null 2>&1; then
+        udevadm settle --timeout=10
+    elif command -v mdev >/dev/null 2>&1; then
+        mdev -s
+    else
+        sleep 3
+    fi
+
+    # Loop with no-cached probe to ensure filesystem labels are fully readable
+    echo "Verifying kernel visibility for label '${TARGET_LABEL}'..."
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+        if blkid -p -u filesystem -L "${TARGET_LABEL}" >/dev/null 2>&1; then
+            break
+        fi
+        sleep 0.5
+    done
+fi
+
+# 6. Mount the new partition and inject the persistence layout rule
+MOUNT_DIR="/mnt_bootstrap"
+mkdir -p "$MOUNT_DIR"
+
+if mount "$PARTITION" "$MOUNT_DIR"; then
+    if [ ! -f "$MOUNT_DIR/persistence.conf" ]; then
+        echo "Injecting global overlay persistence configuration..."
+        echo "/ union" > "$MOUNT_DIR/persistence.conf"
+        sync
+    fi
+    umount "$MOUNT_DIR"
+else
+    echo "ERROR: Failed to mount ${PARTITION} to inject persistence.conf"
+fi
+
+rmdir "$MOUNT_DIR" 2>/dev/null
+
+# Final global flush to make sure persistence.conf is physically committed before live-boot takes over
+sync
+echo "=== Initrd Storage Bootstrapper: Completed Successfully ==="
+
+exit 0

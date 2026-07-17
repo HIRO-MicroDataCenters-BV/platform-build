@@ -1,0 +1,56 @@
+#!/bin/sh
+
+PREREQ=""
+prereqs() {
+    echo "$PREREQ"
+}
+case $1 in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /scripts/functions
+
+echo "=== Generic Early Network Hook: Preparing IPv6 ==="
+
+# 1. Dynamically bring up all interfaces (except loopback)
+# This forces the kernel to send Router Solicitations immediately
+for dev_path in /sys/class/net/*; do
+    dev=$(basename "$dev_path")
+    if [ "$dev" != "lo" ]; then
+        echo "Bringing up interface: $dev"
+        ip link set dev "$dev" up
+    fi
+done
+
+# 2. Poll until we have a usable, non-tentative IPv6 address
+TIMEOUT=60
+COUNTER=0
+
+echo "Waiting for a valid global/ULA IPv6 address on any interface..."
+
+while [ $COUNTER -lt $TIMEOUT ]; do
+    # - Get all IPv6 addresses
+    # - Exclude link-local ('scope link') and loopback ('scope host')
+    # - Exclude 'tentative' (addresses still undergoing Duplicate Address Detection)
+    # - Grab only lines containing 'inet6'
+    VALID_IPV6=$(ip -6 addr show | grep "inet6 " | grep -v "scope link" | grep -v "scope host" | grep -v "tentative")
+
+    if [ -n "$VALID_IPV6" ]; then
+        echo "SUCCESS: Usable IPv6 address found!"
+        echo "$VALID_IPV6"
+        exit 0
+    fi
+
+    sleep 1
+    COUNTER=$((COUNTER + 1))
+
+    if [ $((COUNTER % 5)) -eq 0 ]; then
+        echo "Still waiting for IPv6 negotiation ($COUNTER/${TIMEOUT}s)..."
+    fi
+done
+
+echo "WARNING: Timeout reached. No active IPv6 address detected. Handing off to live-boot..."
+exit 0

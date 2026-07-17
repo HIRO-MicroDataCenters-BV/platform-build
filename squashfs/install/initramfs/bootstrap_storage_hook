@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PREREQ=""
+prereqs() {
+    echo "$PREREQ"
+}
+case $1 in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+# Copy the partitioning and formatting binaries + library dependencies
+copy_exec /usr/sbin/sfdisk /sbin
+copy_exec /usr/sbin/mkfs.ext4 /sbin
+copy_exec /sbin/blockdev /sbin
+copy_exec $(which blkid) /sbin
+
+manual_add_modules ext4
+
+# mkfs.ext4 needs its configuration file to run correctly inside the initrd
+if [ -f /etc/mke2fs.conf ]; then
+    mkdir -p "${DESTDIR}/etc"
+    cp /etc/mke2fs.conf "${DESTDIR}/etc/mke2fs.conf"
+fi
