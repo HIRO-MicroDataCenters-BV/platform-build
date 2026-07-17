@@ -1,0 +1,3 @@
+instance-id: head-node
+local-hostname: head-node
+hostname: head-node

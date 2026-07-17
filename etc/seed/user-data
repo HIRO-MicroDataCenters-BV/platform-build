@@ -1,0 +1,28 @@
+#cloud-config
+chpasswd: {expire: False}
+ssh_pwauth: True
+
+cloud_config_modules:
+ - migrator
+ - seed_random
+ - bootcmd
+ - write_files
+ - growpart
+ - resizefs
+ - set_hostname
+ - update_hostname
+ - update_etc_hosts
+ - rsyslog
+ - users-groups
+ - ssh
+ - runcmd
+
+users:
+  - name: ubuntu
+    plain_text_passwd: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+    lock_passwd: false
+
+runcmd: []

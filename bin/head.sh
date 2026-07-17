@@ -136,7 +136,6 @@ setup() {
 cleanup() {
     echo "cleaning up..."
 
-    delete_network
 
     echo "clean up is done."
 }

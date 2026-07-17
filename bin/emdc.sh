@@ -4,7 +4,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 ETC_DIR="${ROOT_DIR}/etc"
 UBUNTU_LIVE_ISO_DEST="${ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26/"
-UBUNTU_CLOUD_IMG_DEST="${ROOT_DIR}/target"
+TARGET_DIR="${ROOT_DIR}/target"
+UBUNTU_CLOUD_IMG_DEST="${TARGET_DIR}"
+SEED_ISO_BUNDLE_ROOT="${ETC_DIR}/seed"
 
 usage() {
     echo "Usage: $0 {install_dependencies|create_network|launch_head|cleanup}"
@@ -40,7 +42,9 @@ install_dependencies() {
     echo "installing dependencies ..."
     mkdir ${UBUNTU_CLOUD_IMG_DEST}
 
-    sudo apt install -y wget
+    sudo apt install -y \
+        wget \
+        genisoimage
 
     wget -P "${UBUNTU_LIVE_ISO_DEST}" https://releases.ubuntu.com/26.04/ubuntu-26.04-live-server-amd64.iso
     wget -P "${UBUNTU_CLOUD_IMG_DEST}" https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img
@@ -68,8 +72,12 @@ delete_network() {
 
 launch_head() {
     HEAD_NAME=network-provisioner-test
+    MAC_ADDRESS="52:54:11:00:00:00"    
 
     cp ${UBUNTU_CLOUD_IMG_DEST}/resolute-server-cloudimg-amd64.img ${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img
+
+    make_iso
+
     # copy image
     virt-install \
         --name=${HEAD_NAME} \
@@ -77,10 +85,12 @@ launch_head() {
         --memory=8192 \
         --os-variant=ubuntu24.04 \
         --disk path=${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img,format=qcow2,bus=virtio \
-        --disk path=seed.iso,device=cdrom \
-        --network network=emdc-net,model=virtio \
+        --disk path=${TARGET_DIR}/seed.iso,device=cdrom \
+        --network network=pxe-mesh,mac=${MAC_ADDRESS},model=virtio \
         --import \
         --noautoconsole
+# TODO network id
+#   --network network=emdc-net,mac=${MAC_ADDRESS},model=virtio \        
 }
 
 setup_worker() {
@@ -105,6 +115,19 @@ launch_worker_vm() {
         --noautoconsole
 }
 
+make_iso() {
+    mkdir -p "${TARGET_DIR}"
+
+    mkisofs -o "${TARGET_DIR}/seed.iso" \
+        -J \
+        -iso-level 3 \
+        -allow-lowercase \
+        -joliet-long \
+        -input-charset utf8 \
+        -rational-rock \
+        -V cidata \
+        "${SEED_ISO_BUNDLE_ROOT}"
+}
 
 cleanup() {
     echo "cleaning up..."
