@@ -1,0 +1,25 @@
+{
+  "id": "ubuntu-26-live",
+  "name": "Ubuntu 26 Bare Metal Install",
+  "cloud_id": "ubuntu-26-live",
+  "boot": {
+    "kernel": "http://[fd00:22::2]:8080/assets/ubuntu-26-live/vmlinuz",
+    "initrd": [
+      "http://[fd00:22::2]:8080/assets/ubuntu-26-live/initrd.img"
+    ],
+    "args": [
+      "initrd=initrd.img",
+      "boot=live",
+      "ethdevice-timeout=60",
+      "dhcp-retry-limit=5",
+      "ip=off",
+      "ipv6.autoconf=1",      
+      "netboot=http",
+      "persistence",
+      "persistence-label=nodestorage",
+      "fetch=http://[fd00:22::2]:8080/assets/ubuntu-26-live/filesystem.squashfs",
+      "ds=nocloud-net;s=http://[fd00:22::2]:8080/assets/ubuntu-26-live/",
+      "cloud-config-url=http://[fd00:22::2]:8080/cloud?uuid=${uuid}&mac=${mac:hexhyp}"
+    ]
+  }
+}

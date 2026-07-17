@@ -1,0 +1,29 @@
+#cloud-config
+
+autoinstall:
+  version: 1
+
+  identity:
+    hostname: {{.hostname}}
+    username: {{.username}}
+    password: "{{.password_hash}}"
+
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+
+  ssh:
+    install-server: true
+    allow-pw: true
+
+  storage:
+    version: 1
+
+    swap:
+      size: 0
+    layout:
+      name: direct             # Tells subiquity to do a fresh standard layout automatically
+
+  late-commands:
+    - curtin in-target -- systemctl enable ssh
+    - curtin in-target -- bash -c "echo {{.hostname}} > /etc/node-name"

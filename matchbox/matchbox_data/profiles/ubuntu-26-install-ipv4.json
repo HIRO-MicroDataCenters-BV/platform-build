@@ -1,0 +1,19 @@
+{
+  "id": "ubuntu-26-install",
+  "name": "Ubuntu 26 Bare Metal Install",
+  "cloud_id": "ubuntu-26-install",
+  "boot": {
+    "kernel": "http://192.168.22.2:8080/assets/ubuntu-26/vmlinuz",
+    "initrd": [
+      "http://192.168.22.2:8080/assets/ubuntu-26/initrd"
+    ],
+    "args": [
+      "initrd=initrd",
+      "boot=casper",
+      "ip=dhcp",
+      "url=http://192.168.22.2:8080/assets/ubuntu-26/ubuntu-26.04-live-server-amd64.iso",
+      "ds=nocloud-net;s=http://192.168.22.2:8080/assets/ubuntu-26/",
+      "cloud-config-url=http://192.168.22.2:8080/cloud?uuid=${uuid}&mac=${mac:hexhyp}"
+    ]
+  }
+}
