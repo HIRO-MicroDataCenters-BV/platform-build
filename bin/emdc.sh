@@ -1,0 +1,110 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+ETC_DIR="${ROOT_DIR}/etc"
+UBUNTU_LIVE_ISO_DEST="${ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26/"
+UBUNTU_CLOUD_IMG_DEST="${ROOT_DIR}/target"
+
+usage() {
+    echo "Usage: $0 {install_dependencies|create_network|launch_head}"
+    exit 1
+}
+
+main() {
+    if [ $# -ne 1 ]; then
+        usage
+    fi
+
+    case "$1" in
+        install_dependencies)
+            install_dependencies
+            ;;
+        create_network)
+            create_network
+            ;;
+        launch_head)
+            launch_head
+            ;;
+        *)
+            echo "Error: Invalid command '$1'"
+            usage
+            ;;
+    esac
+}
+
+install_dependencies() {
+    echo "installing dependencies ..."
+    mkdir ${UBUNTU_CLOUD_IMG_DEST}
+
+    sudo apt install -y wget
+
+    wget -P "${UBUNTU_LIVE_ISO_DEST}" https://releases.ubuntu.com/26.04/ubuntu-26.04-live-server-amd64.iso
+    wget -P "${UBUNTU_CLOUD_IMG_DEST}" https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img
+
+    echo "Dependencies installed."
+}
+
+create_network() {
+    echo "Creating network ..."
+
+    virsh net-define "${ETC_DIR}/emdc-net.xml"
+    virsh net-start emdc-net
+
+    echo "Network created."
+}
+
+delete_network() {
+    echo "Deleting network ..."
+
+    virsh net-stop emdc-net
+    virsh net-delete emdc-net
+
+    echo "Network deleted."
+}
+
+launch_head() {
+    HEAD_NAME=network-provisioner-test
+
+    cp ${UBUNTU_CLOUD_IMG_DEST}/resolute-server-cloudimg-amd64.img ${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img
+    # copy image
+    virt-install \
+        --name=${HEAD_NAME} \
+        --vcpus=4 \
+        --memory=8192 \
+        --os-variant=ubuntu24.04 \
+        --disk path=${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img,format=qcow2,bus=virtio \
+        --disk path=seed.iso,device=cdrom \
+        --network network=emdc-net,model=virtio \
+        --import \
+        --noautoconsole
+}
+
+setup_worker() {
+    echo "setup worker"
+}
+
+launch_worker_vm() {
+    MAC_ADDRESS="52:54:00:fa:19:bc"
+    UUID="7582474c-1a40-4c14-874c-a8b32fee31ad"
+    WORKER_NAME="worker-002"
+
+    virt-install \
+        --name=${WORKER_NAME} \
+        --uuid=${UUID} \
+        --vcpus=2 \
+        --memory=8192 \
+        --network network=emdc-net,mac=${MAC_ADDRESS},model=virtio \
+        --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader.readonly=yes,loader.type=pflash,nvram.template=/usr/share/OVMF/OVMF_VARS_4M.fd,bootmenu.enable=yes \
+        --boot network \
+        --disk size=20,bus=virtio,cache=none,discard=unmap \
+        --os-variant=generic \
+        --noautoconsole
+}
+
+
+cleanup() {
+    echo "cleaning up..."
+}
+
+main "$@"
