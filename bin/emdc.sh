@@ -7,7 +7,7 @@ UBUNTU_LIVE_ISO_DEST="${ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26/"
 UBUNTU_CLOUD_IMG_DEST="${ROOT_DIR}/target"
 
 usage() {
-    echo "Usage: $0 {install_dependencies|create_network|launch_head}"
+    echo "Usage: $0 {install_dependencies|create_network|launch_head|cleanup}"
     exit 1
 }
 
@@ -25,6 +25,9 @@ main() {
             ;;
         launch_head)
             launch_head
+            ;;
+        cleanup)
+            cleanup
             ;;
         *)
             echo "Error: Invalid command '$1'"
@@ -105,6 +108,10 @@ launch_worker_vm() {
 
 cleanup() {
     echo "cleaning up..."
+
+    delete_network
+
+    echo "clean up is done."
 }
 
 main "$@"
