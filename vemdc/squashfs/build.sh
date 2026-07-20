@@ -55,8 +55,9 @@ build() {
 	rm ${BUILD_DIR}/*
 	cp ${ROOT_DIR}/boot/vmlinuz ${BUILD_DIR}/vmlinuz
 	cp ${ROOT_DIR}/boot/initrd.img ${BUILD_DIR}/initrd.img
+
 	mksquashfs ${ROOT_DIR} ${BUILD_DIR}/filesystem.squashfs -comp xz 
-	#-e boot
+
 	chmod a+rw ${BUILD_DIR}/*
 }
 
@@ -68,6 +69,7 @@ cleanup() {
 }
 
 upload() {
+	sudo chown ${USER}:${USER} ${BUILD_DIR}/*
 	cp ${BUILD_DIR}/* ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/
 }
 

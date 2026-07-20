@@ -86,6 +86,7 @@ apt-get clean
 rm -rf /tmp/* /var/lib/apt/lists/*
 echo "k8s-node-????-????" > /etc/hostname
 echo "" > /etc/machine-id
+rm -f /var/lib/dbus/machine-id
 exit
 
 
