@@ -1,7 +1,9 @@
 #!/bin/bash
 
-ROOT_DIR=./diskless/chroot
-BUILD_DIR=./diskless/build
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT_DIR="${SCRIPT_DIR}/.."
+ROOT_DIR=${SCRIPT_DIR}/diskless/chroot
+BUILD_DIR=${SCRIPT_DIR}/diskless/build
 
 init() {
 
@@ -26,7 +28,7 @@ install() {
 	mount -t sysfs sysfs ${ROOT_DIR}/sys
 
 	# Chroot and Configure Repositories
-	cp -r ./install ${ROOT_DIR}
+	cp -r ${SCRIPT_DIR}/install ${ROOT_DIR}
 	chroot ${ROOT_DIR} /bin/bash /install/install.sh
 }
 
@@ -43,7 +45,7 @@ enter() {
 	mount -t sysfs sysfs ${ROOT_DIR}/sys
 
 	# Chroot and Configure Repositories
-	cp -r ./install ${ROOT_DIR}
+	cp -r ${SCRIPT_DIR}/install ${ROOT_DIR}
 	chroot ${ROOT_DIR} /bin/bash
 }
 
@@ -66,7 +68,7 @@ cleanup() {
 }
 
 upload() {
-	scp ${BUILD_DIR}/* ubuntu@192.168.22.2:/home/ubuntu/matchbox_data/assets/ubuntu-26-live/
+	cp ${BUILD_DIR}/* ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/
 }
 
 "$@"

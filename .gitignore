@@ -4,5 +4,5 @@ matchbox/matchbox_data/assets/ubuntu-26/ubuntu-26.04-live-server-amd64.iso
 matchbox/matchbox_data/assets/ubuntu-26/vmlinuz
 matchbox/matchbox_data/assets/ubuntu-26/initrd
 matchbox/matchbox_data/assets/ubuntu-26-live/vmlinuz
-matchbox/matchbox_data/assets/ubuntu-26-live/initrd
+matchbox/matchbox_data/assets/ubuntu-26-live/initrd.img
 matchbox/matchbox_data/assets/ubuntu-26-live/filesystem.squashfs

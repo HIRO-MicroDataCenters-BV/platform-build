@@ -28,3 +28,4 @@ users:
 runcmd:
   - sudo mkdir /mnt/platform-build
   - sudo mount -t virtiofs root_dir /mnt/platform-build
+  - echo 'root_dir /mnt/platform-build virtiofs defaults 0 0' | sudo tee -a /etc/fstab

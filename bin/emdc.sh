@@ -7,6 +7,7 @@ UBUNTU_LIVE_ISO_DEST="${ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26/"
 TARGET_DIR="${ROOT_DIR}/target"
 UBUNTU_CLOUD_IMG_DEST="${TARGET_DIR}"
 SEED_ISO_BUNDLE_ROOT="${ETC_DIR}/seed"
+MATCHBOX_WORKER_GROUP_ROOT="${ROOT_DIR}/matchbox/matchbox_data/groups"
 
 usage() {
     echo "Usage: $0 {install_dependencies|create_network|launch_head|launch_worker|cleanup}"
@@ -101,12 +102,34 @@ launch_head() {
 
 setup_worker() {
     echo "setup worker"
+    WORKER_NAME="worker-01"
+    WORKER_UUID="7582474c-1a40-4c14-874c-a8b32fee31ad"
+
+    cat <<EOF | tee "${MATCHBOX_WORKER_GROUP_ROOT}/${WORKER_NAME}.json"
+    {
+        "id": "${WORKER_NAME}",
+        "name": "${WORKER_NAME}",
+        "profile": "ubuntu-26-live",
+        "selector": {    
+            "uuid": "${WORKER_UUID}"
+        },
+        "metadata": {
+            "hostname": "${WORKER_NAME}",
+            "username": "ubuntu",
+            "password_hash": "$6$PM/R4u/A3FVILWY8$.q7Syuoos7RDXUYzFTE1OGtIHzo41D88UWeri6T4x.V8h8qFwafzbiWkGL2ORh4BLvXtzVdqL0sYQF5j596UT0"
+        }
+    }
+EOF
+
+
 }
 
 launch_worker() {
     MAC_ADDRESS="52:54:00:fa:19:bc"
     UUID="7582474c-1a40-4c14-874c-a8b32fee31ad"
     WORKER_NAME="worker-01"
+
+    setup_worker "${WORKER_NAME}" "${UUID}"
 
     virt-install \
         --name=${WORKER_NAME} \
