@@ -39,6 +39,7 @@ install_dependencies() {
     echo "installing dependencies ..."
 
     ### Installing general dependencies ###
+    apt update
     apt install -y wget radvd kea-dhcp4-server kea-dhcp6-server containerd
 
     ### Installing kubernetes ###
@@ -46,10 +47,10 @@ install_dependencies() {
 
     # Add the Kubernetes repository signing key
     mkdir -p /etc/apt/keyrings
-    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-    # Add the Kubernetes apt repository
-    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    # Add the Kubernetes APT repository to your sources list
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
 
     # Install the binaries
     apt update
@@ -70,15 +71,29 @@ install_matchbox() {
 
     useradd -U matchbox
     systemctl enable matchbox.service
+    systemctl restart matchbox.service
  
     echo "Matchbox installed"
+}
+
+install_k9s() {
+    echo "Installing k9s..."
+
+    wget "https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_amd64.tar.gz" -O /tmp/k9s.tar.gz
+    tar -xzf /tmp/k9s.tar.gz -C /tmp/
+    sudo mv /tmp/k9s /usr/local/bin/k9s
+    sudo chmod +x /usr/local/bin/k9s
+
+    echo "k9s installed"
 }
 
 configure_kea() {
     echo "Installing kea dhcp4/dhcp6..."
     cp ${ETC_DIR}/kea/* /etc/kea/
     systemctl enable kea-dhcp4-server
+    systemctl restart kea-dhcp4-server
     systemctl enable kea-dhcp6-server
+    systemctl restart kea-dhcp6-server
 
     echo "Kea dhcp4/dhcp6 is installed"
 }
@@ -153,6 +168,7 @@ setup() {
     configure_radvd
     configure_containerd
     configure_kubernetes
+    install_k9s
 }
 
 configure_kubectl() {
