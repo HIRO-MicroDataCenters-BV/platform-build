@@ -6,7 +6,7 @@ TARGET="${ROOT_DIR}/target"
 ETC_DIR="${ROOT_DIR}/etc"
 
 usage() {
-    echo "Usage: $0 {install_dependencies|setup|cleanup}"
+    echo "Usage: $0 {install_dependencies|setup|configure_kubectl|cleanup}"
     exit 1
 }
 
@@ -22,6 +22,9 @@ main() {
         setup)
             setup
             ;;
+        configure_kubectl)
+            configure_kubectl
+            ;;
         cleanup)
             cleanup
             ;;
@@ -36,45 +39,60 @@ install_dependencies() {
     echo "installing dependencies ..."
 
     ### Installing general dependencies ###
-    sudo apt install -y wget radvd kea-dhcp4-server kea-dhcp6-server
+    apt install -y wget radvd kea-dhcp4-server kea-dhcp6-server containerd
 
     ### Installing kubernetes ###
     apt-get install -y apt-transport-https ca-certificates curl gpg
 
     # Add the Kubernetes repository signing key
-    sudo mkdir -p /etc/apt/keyrings
+    mkdir -p /etc/apt/keyrings
     curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
     # Add the Kubernetes apt repository
     echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
     # Install the binaries
-    sudo apt update
-    sudo apt-get install -y kubelet kubeadm kubectl
+    apt update
+    apt-get install -y kubelet kubeadm kubectl
 
     echo "Dependencies installed."
 }
 
 install_matchbox() {
+    echo "Installing matchbox..."
+    UNTAR_DIR=matchbox-v0.10.0-linux-amd64
+
     wget -P "${TARGET}" https://github.com/poseidon/matchbox/releases/download/v0.10.0/matchbox-v0.10.0-linux-amd64.tar.gz
-    tar xzvf "${TARGET}/matchbox-v0.10.0-linux-amd64.tar.gz"
+    tar xzvf "${TARGET}/matchbox-v0.10.0-linux-amd64.tar.gz" -C "${TARGET}"
 
-    sudo cp "${TARGET}/matchbox" /usr/local/bin
-    sudo cp "${TARGET}/contrib/systemd/matchbox.service" /etc/systemd/system/matchbox.service
+    sudo cp "${TARGET}/${UNTAR_DIR}/matchbox" /usr/local/bin
+    sudo cp "${TARGET}/${UNTAR_DIR}/contrib/systemd/matchbox.service" /etc/systemd/system/matchbox.service
 
-    useradd -U matchbox    
+    useradd -U matchbox
+    systemctl enable matchbox.service
+ 
+    echo "Matchbox installed"
 }
 
 configure_kea() {
-    sudo cp ${ETC_DIR}/kea/* /etc/kea/
+    echo "Installing kea dhcp4/dhcp6..."
+    cp ${ETC_DIR}/kea/* /etc/kea/
+    systemctl enable kea-dhcp4-server
+    systemctl enable kea-dhcp6-server
+
+    echo "Kea dhcp4/dhcp6 is installed"
 }
 
 configure_radvd() {
-    sudo cp ${ETC_DIR}/radvd/radvd.conf /etc/radvd.conf
+    echo "Installing radvd ..."
+    cp ${ETC_DIR}/radvd/radvd.conf /etc/radvd.conf
+    systemctl enable radvd
+    echo "Radvd is installed"
 }
 
 
 configure_containerd() {
+    echo "Installing containerd"
     # Generate default configuration
     sudo mkdir -p /etc/containerd
     containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
@@ -86,11 +104,13 @@ configure_containerd() {
     sudo systemctl restart containerd
     sudo systemctl enable containerd
 
+    echo "Containerd is installed"
 }
 
 configure_kubernetes() {
-    sudo swapoff -a
-    sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    echo "Installing kubernetes..."
+    swapoff -a
+    sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
     cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
     overlay
@@ -105,16 +125,16 @@ EOF
 EOF
 
     # Apply sysctl parameters without rebooting
-    sudo sysctl --system
+    sysctl --system
 
-    sudo kubeadm init \
+    kubeadm init \
         --apiserver-advertise-address=192.168.22.2 \
         --pod-network-cidr=10.10.0.0/16 \
         --cri-socket=unix:///run/containerd/containerd.sock
 
     mkdir -p $HOME/.kube
-    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
 
     kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
 
@@ -122,7 +142,8 @@ EOF
     kubectl get pods -n kube-system
 
     kubeadm token create --print-join-command
-        
+
+    echo "Kubernetes installed"    
 }
 
 setup() {
@@ -131,6 +152,12 @@ setup() {
     configure_radvd
     configure_containerd
     configure_kubernetes
+}
+
+configure_kubectl() {
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
 }
 
 cleanup() {

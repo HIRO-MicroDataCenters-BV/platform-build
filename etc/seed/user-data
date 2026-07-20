@@ -25,4 +25,6 @@ users:
     shell: /bin/bash
     lock_passwd: false
 
-runcmd: []
+runcmd:
+  - sudo mkdir /mnt/platform-build
+  - sudo mount -t virtiofs root_dir /mnt/platform-build
