@@ -6,3 +6,4 @@ vemdc/matchbox/matchbox_data/assets/ubuntu-26/initrd
 vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/vmlinuz
 vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/initrd.img
 vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/filesystem.squashfs
+vemdc/matchbox/matchbox_data/groups/*
