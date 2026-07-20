@@ -66,7 +66,7 @@ install_matchbox() {
     tar xzvf "${TARGET}/matchbox-v0.10.0-linux-amd64.tar.gz" -C "${TARGET}"
 
     sudo cp "${TARGET}/${UNTAR_DIR}/matchbox" /usr/local/bin
-    sudo cp "${TARGET}/${UNTAR_DIR}/contrib/systemd/matchbox.service" /etc/systemd/system/matchbox.service
+    sudo cp "${ETC_DIR}/matchbox/matchbox.service" /etc/systemd/system/matchbox.service
 
     useradd -U matchbox
     systemctl enable matchbox.service
@@ -85,6 +85,7 @@ configure_kea() {
 
 configure_radvd() {
     echo "Installing radvd ..."
+    sysctl -w net.ipv6.conf.all.forwarding=1
     cp ${ETC_DIR}/radvd/radvd.conf /etc/radvd.conf
     systemctl enable radvd
     echo "Radvd is installed"
@@ -94,17 +95,17 @@ configure_radvd() {
 configure_containerd() {
     echo "Installing containerd"
     # Generate default configuration
-    sudo mkdir -p /etc/containerd
-    containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+    mkdir -p /etc/containerd
+    containerd config default | tee /etc/containerd/config.toml > /dev/null
 
     # Crucial: Configure containerd to use the systemd cgroup driver
-    sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+    sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
 
     # Restart and enable containerd
-    sudo systemctl restart containerd
-    sudo systemctl enable containerd
+    systemctl restart containerd
+    systemctl enable containerd
 
-    echo "Containerd is installed"
+    echo "Containerd is installed."
 }
 
 configure_kubernetes() {
@@ -112,13 +113,13 @@ configure_kubernetes() {
     swapoff -a
     sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
-    cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+    cat <<EOF | tee /etc/modules-load.d/k8s.conf
     overlay
     br_netfilter
 EOF
 
     # Configure sysctl parameters
-    cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+    cat <<EOF | tee /etc/sysctl.d/k8s.conf
     net.bridge.bridge-nf-call-iptables  = 1
     net.bridge.bridge-nf-call-ip6tables = 1
     net.ipv4.ip_forward                 = 1
