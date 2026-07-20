@@ -6,7 +6,7 @@ TARGET="${ROOT_DIR}/target"
 ETC_DIR="${ROOT_DIR}/etc"
 
 usage() {
-    echo "Usage: $0 {install_dependencies|setup|configure_kubectl|cleanup}"
+    echo "Usage: $0 {install_dependencies|setup|configure_kubectl}"
     exit 1
 }
 
@@ -175,13 +175,6 @@ configure_kubectl() {
     mkdir -p $HOME/.kube
     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     sudo chown $(id -u):$(id -g) $HOME/.kube/config
-}
-
-cleanup() {
-    echo "cleaning up..."
-
-
-    echo "clean up is done."
 }
 
 main "$@"

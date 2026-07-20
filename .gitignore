@@ -1,8 +1,8 @@
-squashfs/diskless/*
-target/*
-matchbox/matchbox_data/assets/ubuntu-26/ubuntu-26.04-live-server-amd64.iso
-matchbox/matchbox_data/assets/ubuntu-26/vmlinuz
-matchbox/matchbox_data/assets/ubuntu-26/initrd
-matchbox/matchbox_data/assets/ubuntu-26-live/vmlinuz
-matchbox/matchbox_data/assets/ubuntu-26-live/initrd.img
-matchbox/matchbox_data/assets/ubuntu-26-live/filesystem.squashfs
+vemdc/squashfs/diskless/*
+vemdc/target/*
+vemdc/matchbox/matchbox_data/assets/ubuntu-26/ubuntu-26.04-live-server-amd64.iso
+vemdc/matchbox/matchbox_data/assets/ubuntu-26/vmlinuz
+vemdc/matchbox/matchbox_data/assets/ubuntu-26/initrd
+vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/vmlinuz
+vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/initrd.img
+vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/filesystem.squashfs

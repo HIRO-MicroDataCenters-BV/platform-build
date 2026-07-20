@@ -10,7 +10,7 @@ SEED_ISO_BUNDLE_ROOT="${ETC_DIR}/seed"
 MATCHBOX_WORKER_GROUP_ROOT="${ROOT_DIR}/matchbox/matchbox_data/groups"
 
 usage() {
-    echo "Usage: $0 {install_dependencies|create_network|launch_head|launch_worker|cleanup}"
+    echo "Usage: $0 {install_dependencies|create_network|launch_head|launch_worker}"
     exit 1
 }
 
@@ -32,9 +32,6 @@ main() {
         launch_worker)
             launch_worker
             ;;
-        cleanup)
-            cleanup
-            ;;
         *)
             echo "Error: Invalid command '$1'"
             usage
@@ -48,7 +45,10 @@ install_dependencies() {
 
     sudo apt install -y \
         wget \
-        genisoimage
+        genisoimage \
+        qemu-kvm \
+        libvirt-daemon-system \
+        virt-manager
 
     wget -P "${UBUNTU_LIVE_ISO_DEST}" https://releases.ubuntu.com/26.04/ubuntu-26.04-live-server-amd64.iso
     wget -P "${UBUNTU_CLOUD_IMG_DEST}" https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img
@@ -161,12 +161,5 @@ make_iso() {
         "${SEED_ISO_BUNDLE_ROOT}"
 }
 
-cleanup() {
-    echo "cleaning up..."
-
-    delete_network
-
-    echo "clean up is done."
-}
 
 main "$@"
