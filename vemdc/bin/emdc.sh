@@ -15,6 +15,9 @@ usage() {
 }
 
 main() {
+    if [ $# -le 1 ]; then
+        usage
+    fi
     case "$1" in
         install_dependencies)
             if [ $# -ne 1 ]; then
