@@ -1,0 +1,48 @@
+name: Build and publish IPXE build
+
+on:
+  push:
+    tags:
+      - "ipxe_*"
+
+env:
+  GITHUB_REPOSITORY: HIRO-MicroDataCenters-BV/plaform-build
+
+permissions:
+  contents: write
+
+jobs:
+  debian:
+    runs-on: ubuntu-26.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          ./ipxe/bin/build.sh install_dependencies
+
+      - name: Build
+        run: |
+          ./ipxe/bin/build.sh determine_version
+          ./ipxe/bin/build.sh build
+
+      - name: Package
+        run: |
+          ./ipxe/bin/build.sh package
+
+      - name: Release
+        env:
+          GH_REPO: ${{ env.GITHUB_REPOSITORY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" --verify-tag --draft \
+              --title "$(cat version/relname.txt)" \
+              --notes-file version/relnotes.md \
+              bin-combi/ipxe.iso bin-combi/ipxe.usb \
+              bin-combi/ipxe-arm64-sb.iso bin-combi/ipxe-arm64-sb.usb \
+              bin-combi/ipxe-loong64-sb.iso bin-combi/ipxe-loong64-sb.usb \
+              bin-combi/ipxe-riscv64-sb.iso bin-combi/ipxe-riscv64-sb.usb \
+              bin-combi/ipxe-x86_64-sb.iso bin-combi/ipxe-x86_64-sb.usb \
+              bin-combi/ipxeboot.tar.gz
+
