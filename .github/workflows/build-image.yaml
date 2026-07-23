@@ -87,6 +87,7 @@ jobs:
           push: true
           sbom: true
           provenance: true
+          context: .
           file: ./builder/${{ matrix.os }}.Dockerfile
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
