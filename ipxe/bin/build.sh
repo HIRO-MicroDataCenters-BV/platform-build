@@ -70,6 +70,7 @@ determine_version() {
         echo "Error: Tag '$TAG' does not contain a valid version format." >&2
         return 1
     fi
+    echo "Version ${VERSION}"
     echo -n "${VERSION}" > "${VERSION_PATH}"
 }
 
