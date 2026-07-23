@@ -37,7 +37,7 @@ main() {
 }
 
 install_dependencies() {
-    sudo apt install -y
+    sudo apt install -y \
         git \
         gcc \
         make \
