@@ -5,9 +5,9 @@ set -o nounset
 
 ROOT="${GITHUB_WORKSPACE:?Github workspace is not set.}"
 
-VERSION_APP_PATH="${ROOT}/build/VERSION"
-VERSION_DOCKER_PATH="${ROOT}/build/VERSION_DOCKER"
-DOCKER_IMAGES_PATH="${ROOT}/build/DOCKER_IMAGES"
+VERSION_APP_PATH="${ROOT}/builder/VERSION"
+VERSION_DOCKER_PATH="${ROOT}/builder/VERSION_DOCKER"
+DOCKER_IMAGES_PATH="${ROOT}/builder/DOCKER_IMAGES"
 
 #                                         App                           Docker                            Chart
 # branch, pr (e.g. "main", "mybranch"):   4.2.0.dev3-mybranch-411fa4aa  4.2.0-dev.3.mybranch.411fa4aa     4.2.0-dev.3.mybranch.411fa4aa
