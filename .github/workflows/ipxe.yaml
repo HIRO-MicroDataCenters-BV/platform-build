@@ -23,7 +23,7 @@ jobs:
           - run_os: ubuntu-latest
             release_os: ubuntu-22.04
             arch: x86_64
-            container: ghcr.io/hiro-microdatacenters-bv/platform-builder:ubuntu-22.04-linux-amd64-latest
+            container: ghcr.io/hiro-microdatacenters-bv/platform-build:ubuntu-22.04-linux-amd64-latest
 
     container:
       image: ${{ matrix.config.container }}
