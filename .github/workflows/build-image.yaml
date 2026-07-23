@@ -57,16 +57,16 @@ jobs:
       - name: Make versions
         run: |
           cd "${{ github.workspace }}"
-          chmod +x ./build/version.sh
-          ./build/version.sh "${{ github.sha }}" "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          VERSION_DOCKER_BASE=$(cat ./build/VERSION_DOCKER)
+          chmod +x ./builder/version.sh
+          ./builder/version.sh "${{ github.sha }}" "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          VERSION_DOCKER_BASE=$(cat ./builder/VERSION_DOCKER)
           echo "$VERSION_DOCKER_BASE" | sed "s/^/${OS_ARCH}-/; s/,/\n${OS_ARCH}-/g" > /tmp/tags.txt
           {
             echo "DOCKER_TAGS<<EOF"
             cat /tmp/tags.txt
             echo "EOF"
           } >> $GITHUB_ENV
-          echo "DOCKER_TAG_ARGS=$(cat "./build/VERSION_DOCKER" | sed 's/,/,${{ env.OS_ARCH }}-/g; s/^/${{ env.OS_ARCH }}-/' | sed 's/,/,name=/g; s/^/name=/')" >> $GITHUB_ENV
+          echo "DOCKER_TAG_ARGS=$(cat "./builder/VERSION_DOCKER" | sed 's/,/,${{ env.OS_ARCH }}-/g; s/^/${{ env.OS_ARCH }}-/' | sed 's/,/,name=/g; s/^/name=/')" >> $GITHUB_ENV
       - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@v3
         with:
@@ -87,7 +87,7 @@ jobs:
           push: true
           sbom: true
           provenance: true
-          file: ./build/${{ matrix.os }}.Dockerfile
+          file: ./builder/${{ matrix.os }}.Dockerfile
           platforms: ${{ matrix.platform }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
