@@ -5,9 +5,9 @@ set -o nounset
 
 ROOT="${GITHUB_WORKSPACE:?Github workspace is not set.}"
 
-VERSION_APP_PATH="${ROOT}/build/VERSION"
-VERSION_DOCKER_PATH="${ROOT}/build/VERSION_DOCKER"
-DOCKER_IMAGES_PATH="${ROOT}/build/DOCKER_IMAGES"
+VERSION_APP_PATH="${ROOT}/builder/VERSION"
+VERSION_DOCKER_PATH="${ROOT}/builder/VERSION_DOCKER"
+DOCKER_IMAGES_PATH="${ROOT}/builder/DOCKER_IMAGES"
 
 #                                         App                           Docker                            Chart
 # branch, pr (e.g. "main", "mybranch"):   4.2.0.dev3-mybranch-411fa4aa  4.2.0-dev.3.mybranch.411fa4aa     4.2.0-dev.3.mybranch.411fa4aa
@@ -17,8 +17,8 @@ make_version() {
   GIT_SHA="$1"
   SHORT_SHA=$(echo "$GIT_SHA" | cut -c1-8)
 
-  VERSION_BASE_HASH=$(git log --follow -1 --pretty=%H build/VERSION)
-  VERSION_BASE=$(cat build/VERSION)
+  VERSION_BASE_HASH=$(git log --follow -1 --pretty=%H builder/VERSION)
+  VERSION_BASE=$(cat builder/VERSION)
   GIT_COUNT=$(git rev-list --count "$VERSION_BASE_HASH"..HEAD)
 
   BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}  # Branch or pr or tag
@@ -97,20 +97,12 @@ make_docker_images_with_tags() {
   echo -n "${RESULT}" > "${DOCKER_IMAGES_PATH}"
 }
 
-patch_versions_in_project_files() {
-  VERSION_APP=$(cat "${VERSION_APP_PATH}")
-
-  sed -i "s#^version = \"[0-9a-zA-Z\.-_\+]*\"#version = \"$VERSION_APP\"#" "${ROOT}"/client-libs/*/Cargo.toml
-  sed -i "s#^version = \"[0-9a-zA-Z\.-_\+]*\"#version = \"$VERSION_APP\"#" "${ROOT}"/*/Cargo.toml
-}
-
 main() {
   GIT_SHA="${1:?GIT_SHA not set}"
   DOCKER_IMAGE_NAME="${2:?Docker image name is not set}"
 
   make_version "$GIT_SHA"
   make_docker_images_with_tags "$DOCKER_IMAGE_NAME"
-  patch_versions_in_project_files "$DOCKER_IMAGE_NAME"
 }
 
 main "$@"
