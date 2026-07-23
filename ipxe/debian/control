@@ -1,0 +1,5 @@
+Package: emdc-ipxe
+Version: 0.0.0
+Architecture: amd64
+Maintainer: <ktatarnikovathiro@gmail.com>
+Description: IPXE Netboot binary

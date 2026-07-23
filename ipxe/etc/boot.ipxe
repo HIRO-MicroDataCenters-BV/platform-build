@@ -2,4 +2,6 @@
 
 dhcp
 
+
 chain ${origin-url}/boot.ipxe?uuid=${uuid}&mac=${mac:hexhyp}&serial=${serial}
+
