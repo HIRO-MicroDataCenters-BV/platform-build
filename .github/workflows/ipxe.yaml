@@ -7,7 +7,7 @@ on:
       - "ipxe_*"
 
 env:
-  GITHUB_REPOSITORY: HIRO-MicroDataCenters-BV/plaform-build
+  GITHUB_REPOSITORY: HIRO-MicroDataCenters-BV/platform-build
 
 permissions:
   contents: write
@@ -15,20 +15,22 @@ permissions:
 jobs:
   ipxeboot:
     name: iPXE Boot UEFI
-    runs-on: ubuntu-26.04
+    runs-on: ${{ matrix.config.run_os }}
     strategy:
       fail-fast: false
       matrix:
-        arch:
-          # - arm64
-          - x86_64
+        config:
+          - run_os: ubuntu-latest
+            release_os: ubuntu-22.04
+            arch: x86_64
+            container: ghcr.io/hiro-microdatacenters-bv/platform-builder:ubuntu-22.04-linux-amd64-latest
+
+    container:
+      image: ${{ matrix.config.container }}
+      options: --user 0
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          ./ipxe/bin/build.sh install_dependencies
 
       - name: Build
         run: |
@@ -54,3 +56,10 @@ jobs:
       #         bin-combi/ipxe-x86_64-sb.iso bin-combi/ipxe-x86_64-sb.usb \
       #         bin-combi/ipxeboot.tar.gz
 
+
+      # - name: Create GitHub Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     tag_name: ${{ env.VERSION }}
+      #     name: Release ${{ env.VERSION }}
+      #     files: release-artifacts/**/*.deb
