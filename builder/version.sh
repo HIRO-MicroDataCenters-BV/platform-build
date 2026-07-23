@@ -17,8 +17,8 @@ make_version() {
   GIT_SHA="$1"
   SHORT_SHA=$(echo "$GIT_SHA" | cut -c1-8)
 
-  VERSION_BASE_HASH=$(git log --follow -1 --pretty=%H build/VERSION)
-  VERSION_BASE=$(cat build/VERSION)
+  VERSION_BASE_HASH=$(git log --follow -1 --pretty=%H builder/VERSION)
+  VERSION_BASE=$(cat builder/VERSION)
   GIT_COUNT=$(git rev-list --count "$VERSION_BASE_HASH"..HEAD)
 
   BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}  # Branch or pr or tag
