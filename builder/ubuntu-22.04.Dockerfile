@@ -7,8 +7,6 @@ WORKDIR /platform-build
 
 COPY . .
 
-RUN ls
-
 RUN ./ipxe/bin/build.sh install_dependencies
 
 ENTRYPOINT [ "/bin/bash" ]
