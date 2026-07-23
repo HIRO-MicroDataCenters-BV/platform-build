@@ -57,6 +57,8 @@ build() {
 }
 
 determine_version() {
+    mkdir -p ${TARGET_DIR}
+    cd ${TARGET_DIR}
 
     TAG="${GITHUB_REF_NAME:-$(git describe --tags --exact-match 2>/dev/null)}" || {
         echo "Error: Current commit (HEAD) does not have a Git tag." >&2
