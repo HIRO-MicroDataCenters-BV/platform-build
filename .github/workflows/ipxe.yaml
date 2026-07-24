@@ -26,7 +26,7 @@ jobs:
             platform: amd64
             container: ghcr.io/hiro-microdatacenters-bv/platform-build:ubuntu-22.04-linux-amd64-latest
 
-          - run_os: ubuntu-latest-arm
+          - run_os: ubuntu-26.04-arm
             release_os: ubuntu-22.04
             arch: arm64
             platform: arm64
