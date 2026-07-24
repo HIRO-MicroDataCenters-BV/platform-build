@@ -9,7 +9,7 @@ RELEASE_DIR="${TARGET_DIR}/release"
 PACKAGE_STEM=ipxe-boot
 
 usage() {
-    echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64>, package <arch: arm64|x86_64> <platform: amd64|arm64>}"
+    echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64>, package <arch: arm64|x86_64> <platform: amd64|arm64> <os: ubuntu-26.04>}"
     exit 1
 }
 
@@ -31,10 +31,10 @@ main() {
             build $2
             ;;
         package)
-            if [ $# -ne 3 ]; then
+            if [ $# -ne 4 ]; then
                 usage
             fi
-            package $2 $3
+            package $2 $3 $4
             ;;
         *)
             echo "Error: Invalid command '$1'"
@@ -92,13 +92,14 @@ determine_version() {
 
 package() {
     echo "Packaging ..."
-    ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
-    PLATFORM="${2?Platform not specified, e.g. arm64, amd64}"
+    ARCH="${1?Architecture not specified, e.g. arm64|x86_64}"
+    PLATFORM="${2?Platform not specified, e.g. arm64|amd64}"
+    OS_VERSION="${3?OS not specified, e.g. ubuntu-22.10|ubuntu-26.04}"
 
     cd "${TARGET_DIR}"
 
     VERSION=$(cat ${VERSION_PATH})
-    PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_${PLATFORM}"
+    PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_${PLATFORM}-${OS_VERSION}"
     PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
 
     mkdir -p "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"

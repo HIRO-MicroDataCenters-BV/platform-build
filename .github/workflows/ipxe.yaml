@@ -45,7 +45,7 @@ jobs:
         run: |
           ./ipxe/bin/build.sh determine_version
           ./ipxe/bin/build.sh build ${{ matrix.config.arch }}
-          ./ipxe/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }}
+          ./ipxe/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }} ${{ matrix.config.release_os }}
 
       - name: Collect deb packages
         run: |
