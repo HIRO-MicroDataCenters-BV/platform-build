@@ -62,6 +62,10 @@ jobs:
     needs: ipxeboot
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Build And Package
         run: |
           ./ipxe/bin/build.sh determine_version

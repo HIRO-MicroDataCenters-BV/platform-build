@@ -85,11 +85,12 @@ determine_version() {
 
 package() {
     echo "Packaging ..."
+    cd "${TARGET_DIR}"
+    
     VERSION=$(cat ${VERSION_PATH})
     PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_amd64"
     PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
 
-    cd "${TARGET_DIR}"
     mkdir -p "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
     cp ${ROOT_DIR}/debian/* "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
     sed -i "s/0.0.0/${VERSION}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
