@@ -6,7 +6,7 @@ ETC_DIR="${ROOT_DIR}/etc"
 TARGET_DIR="${ROOT_DIR}/target"
 VERSION_PATH="${TARGET_DIR}/VERSION"
 RELEASE_DIR="${TARGET_DIR}/release"
-PACKAGE_STEM=emdc-ipxe-boot
+PACKAGE_STEM=ipxe-boot
 
 usage() {
     echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64>, package <arch: arm64|x86_64> <platform: amd64|arm64>}"
