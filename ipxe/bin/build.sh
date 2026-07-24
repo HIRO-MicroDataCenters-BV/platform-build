@@ -6,6 +6,7 @@ ETC_DIR="${ROOT_DIR}/etc"
 TARGET_DIR="${ROOT_DIR}/target"
 VERSION_PATH="${TARGET_DIR}/VERSION"
 RELEASE_DIR="${TARGET_DIR}/release"
+PACKAGE_STEM=emdc-ipxe-boot
 
 usage() {
     echo "Usage: $0 {install_dependencies,determine_version,build,package}"
@@ -78,7 +79,6 @@ determine_version() {
 
 package() {
     VERSION=$(cat ${VERSION_PATH})
-    PACKAGE_STEM=emdc-ipxe-boot
     PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_amd64"
     PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
 
@@ -90,7 +90,7 @@ package() {
     mkdir -p ${PACKAGE_BINARY}
     cp "${TARGET_DIR}/ipxe/src/bin-x86_64-efi/ipxe.efi" ${PACKAGE_BINARY}
     cp "${TARGET_DIR}/ipxe/src/bin-x86_64-efi/snponly.efi" ${PACKAGE_BINARY}
-    dpkg-deb --build --root-owner-group ${PACKAGE_NAME}
+    dpkg-deb --build --root-owner-group "${PACKAGE_NAME}"
 
     mkdir -p "${RELEASE_DIR}"
     cp "${TARGET_DIR}/*.deb" "${RELEASE_DIR}/"

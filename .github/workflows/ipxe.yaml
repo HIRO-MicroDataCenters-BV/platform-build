@@ -34,34 +34,44 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build
+      - name: Build And Package
         run: |
           ./ipxe/bin/build.sh determine_version
           ./ipxe/bin/build.sh build
-
-      - name: Package
-        run: |
           ./ipxe/bin/build.sh package
 
-      # - name: Release
-      #   env:
-      #     GH_REPO: ${{ env.GITHUB_REPOSITORY }}
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     gh release create "${{ github.ref_name }}" --verify-tag --draft \
-      #         --title "$(cat version/relname.txt)" \
-      #         --notes-file version/relnotes.md \
-      #         bin-combi/ipxe.iso bin-combi/ipxe.usb \
-      #         bin-combi/ipxe-arm64-sb.iso bin-combi/ipxe-arm64-sb.usb \
-      #         bin-combi/ipxe-loong64-sb.iso bin-combi/ipxe-loong64-sb.usb \
-      #         bin-combi/ipxe-riscv64-sb.iso bin-combi/ipxe-riscv64-sb.usb \
-      #         bin-combi/ipxe-x86_64-sb.iso bin-combi/ipxe-x86_64-sb.usb \
-      #         bin-combi/ipxeboot.tar.gz
+      - name: Collect deb packages
+        run: |
+          mkdir -p artifacts
+          DISTRO="${{ matrix.config.release_os }}"
 
+          for f in ./ipxe/target/*.deb; do
+            base=$(basename "$f" .deb)
+            cp "$f" "artifacts/${base}-${DISTRO}.deb"
+          done
 
-      # - name: Create GitHub Release
-      #   uses: softprops/action-gh-release@v2
-      #   with:
-      #     tag_name: ${{ env.VERSION }}
-      #     name: Release ${{ env.VERSION }}
-      #     files: release-artifacts/**/*.deb
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-${{ matrix.config.release_os }}-${{ matrix.config.arch }}
+          path: artifacts/*.deb
+
+  release:
+
+    - name: Build And Package
+      run: |
+        ./ipxe/bin/build.sh determine_version
+        VERSION=$(cat ./ipxe/target/VERSION)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-artifacts
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.VERSION }}
+        name: emdc-ipxe-boot ${{ env.VERSION }}
+        files: release-artifacts/**/*.deb
