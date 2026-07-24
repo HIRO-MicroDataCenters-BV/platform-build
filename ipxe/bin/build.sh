@@ -38,6 +38,7 @@ main() {
 }
 
 install_dependencies() {
+    echo "Install dependencies ..."
     apt install -y \
         git \
         gcc \
@@ -46,15 +47,20 @@ install_dependencies() {
         build-essential \
         devscripts \
         debhelper 
+    echo "Dependencies installed."
 }
 
 build() {
+    echo "Building binary..."
+
     mkdir -p ${TARGET_DIR}
     cd ${TARGET_DIR}
     git clone https://github.com/ipxe/ipxe.git
     cd ${TARGET_DIR}/ipxe/src
     make bin-x86_64-efi/ipxe.efi EMBED=${ETC_DIR}/boot.ipxe
     make bin-x86_64-efi/snponly.efi EMBED=${ETC_DIR}/boot.ipxe    
+
+    echo "Binary is ready."
 }
 
 determine_version() {
@@ -78,6 +84,7 @@ determine_version() {
 }
 
 package() {
+    echo "Packaging ..."
     VERSION=$(cat ${VERSION_PATH})
     PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_amd64"
     PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
@@ -94,6 +101,8 @@ package() {
 
     mkdir -p "${RELEASE_DIR}"
     cp "${TARGET_DIR}/*.deb" "${RELEASE_DIR}/"
+
+    echo "Package is ready."
 }
 
 main "$@"
