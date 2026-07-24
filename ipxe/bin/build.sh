@@ -86,7 +86,7 @@ determine_version() {
 package() {
     echo "Packaging ..."
     cd "${TARGET_DIR}"
-    
+
     VERSION=$(cat ${VERSION_PATH})
     PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_amd64"
     PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
@@ -99,9 +99,6 @@ package() {
     cp "${TARGET_DIR}/ipxe/src/bin-x86_64-efi/ipxe.efi" ${PACKAGE_BINARY}
     cp "${TARGET_DIR}/ipxe/src/bin-x86_64-efi/snponly.efi" ${PACKAGE_BINARY}
     dpkg-deb --build --root-owner-group "${PACKAGE_NAME}"
-
-    mkdir -p "${RELEASE_DIR}"
-    cp "${TARGET_DIR}/*.deb" "${RELEASE_DIR}/"
 
     echo "Package is ready."
 }
