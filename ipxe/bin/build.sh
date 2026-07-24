@@ -9,26 +9,32 @@ RELEASE_DIR="${TARGET_DIR}/release"
 PACKAGE_STEM=emdc-ipxe-boot
 
 usage() {
-    echo "Usage: $0 {install_dependencies,determine_version,build,package}"
+    echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64>, package <arch: arm64|x86_64> <platform: amd64|arm64>}"
     exit 1
 }
 
 main() {
-    if [ $# -ne 1 ]; then
+    if [ $# -lt 1 ]; then
         usage
     fi
     case "$1" in
+        determine_version)
+            determine_version
+            ;;
         install_dependencies)
             install_dependencies
             ;;
         build)
-            build
+            if [ $# -ne 2 ]; then
+                usage
+            fi
+            build $2
             ;;
         package)
-            package
-            ;;
-        determine_version)
-            determine_version
+            if [ $# -ne 3 ]; then
+                usage
+            fi
+            package $2 $3
             ;;
         *)
             echo "Error: Invalid command '$1'"
@@ -52,13 +58,14 @@ install_dependencies() {
 
 build() {
     echo "Building binary..."
+    ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
 
     mkdir -p ${TARGET_DIR}
     cd ${TARGET_DIR}
     git clone https://github.com/ipxe/ipxe.git
     cd ${TARGET_DIR}/ipxe/src
-    make bin-x86_64-efi/ipxe.efi EMBED=${ETC_DIR}/boot.ipxe
-    make bin-x86_64-efi/snponly.efi EMBED=${ETC_DIR}/boot.ipxe    
+    make bin-${ARCH}-efi/ipxe.efi EMBED=${ETC_DIR}/boot.ipxe
+    make bin-${ARCH}-efi/snponly.efi EMBED=${ETC_DIR}/boot.ipxe    
 
     echo "Binary is ready."
 }
@@ -85,10 +92,13 @@ determine_version() {
 
 package() {
     echo "Packaging ..."
+    ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
+    PLATFORM="${2?Platform not specified, e.g. arm64, amd64}"
+
     cd "${TARGET_DIR}"
 
     VERSION=$(cat ${VERSION_PATH})
-    PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_amd64"
+    PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_${PLATFORM}"
     PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
 
     mkdir -p "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
@@ -96,8 +106,8 @@ package() {
     sed -i "s/0.0.0/${VERSION}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
 
     mkdir -p ${PACKAGE_BINARY}
-    cp "${TARGET_DIR}/ipxe/src/bin-x86_64-efi/ipxe.efi" ${PACKAGE_BINARY}
-    cp "${TARGET_DIR}/ipxe/src/bin-x86_64-efi/snponly.efi" ${PACKAGE_BINARY}
+    cp "${TARGET_DIR}/ipxe/src/bin-${ARCH}-efi/ipxe.efi" ${PACKAGE_BINARY}
+    cp "${TARGET_DIR}/ipxe/src/bin-${ARCH}-efi/snponly.efi" ${PACKAGE_BINARY}
     dpkg-deb --build --root-owner-group "${PACKAGE_NAME}"
 
     echo "Package is ready."

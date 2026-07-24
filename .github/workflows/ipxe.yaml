@@ -23,7 +23,14 @@ jobs:
           - run_os: ubuntu-latest
             release_os: ubuntu-22.04
             arch: x86_64
+            platform: amd64
             container: ghcr.io/hiro-microdatacenters-bv/platform-build:ubuntu-22.04-linux-amd64-latest
+
+          - run_os: ubuntu-latest
+            release_os: ubuntu-22.04
+            arch: arm64
+            platform: arm64
+            container: ghcr.io/hiro-microdatacenters-bv/platform-build:ubuntu-22.04-linux-arm64-latest
 
     container:
       image: ${{ matrix.config.container }}
@@ -37,8 +44,8 @@ jobs:
       - name: Build And Package
         run: |
           ./ipxe/bin/build.sh determine_version
-          ./ipxe/bin/build.sh build
-          ./ipxe/bin/build.sh package
+          ./ipxe/bin/build.sh build ${{ matrix.config.arch }}
+          ./ipxe/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }}
 
       - name: Collect deb packages
         run: |
@@ -53,7 +60,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: deb-${{ matrix.config.release_os }}-${{ matrix.config.arch }}
+          name: deb-${{ matrix.config.release_os }}-${{ matrix.config.platform }}
           path: artifacts/*.deb
 
   release:
