@@ -59,6 +59,7 @@ jobs:
   release:
     name: iPXE Boot UEFI
     runs-on: ubuntu-latest
+    needs: ipxeboot
 
     steps:
       - name: Build And Package
