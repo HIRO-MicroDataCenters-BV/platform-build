@@ -75,6 +75,8 @@ build() {
     echo "Building binary..."
     ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
 
+    export PATH=$PATH:/usr/local/go/bin
+
     mkdir -p ${TARGET_DIR}
     cd ${TARGET_DIR}
 
