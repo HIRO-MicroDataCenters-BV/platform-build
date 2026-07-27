@@ -1,10 +1,10 @@
-name: Build and publish IPXE build
+name: Build and publish Matchbox
 
 on:
   workflow_dispatch:
   push:
     tags:
-      - "ipxe_*"
+      - "matchbox_*"
 
 env:
   GITHUB_REPOSITORY: HIRO-MicroDataCenters-BV/platform-build
@@ -13,8 +13,8 @@ permissions:
   contents: write
 
 jobs:
-  ipxeboot:
-    name: iPXE Boot UEFI
+  matchbox_build:
+    name: Matchbox Build
     runs-on: ${{ matrix.config.run_os }}
     strategy:
       fail-fast: false
@@ -67,30 +67,30 @@ jobs:
 
       - name: Build And Package
         run: |
-          ./ipxe/bin/build.sh determine_version
-          ./ipxe/bin/build.sh build ${{ matrix.config.arch }}
-          ./ipxe/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }} ${{ matrix.config.release_os }}
+          ./matchbox/bin/build.sh determine_version
+          ./matchbox/bin/build.sh build ${{ matrix.config.arch }}
+          ./matchbox/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }} ${{ matrix.config.release_os }}
 
       - name: Collect deb packages
         run: |
           mkdir -p artifacts
           DISTRO="${{ matrix.config.release_os }}"
 
-          for f in ./ipxe/target/*.deb; do
+          for f in ./matchbox/target/*.deb; do
             base=$(basename "$f" .deb)
-            cp "$f" "artifacts/"
+            cp "$f" "matchbox-artifacts/"
           done
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: deb-${{ matrix.config.release_os }}-${{ matrix.config.platform }}
-          path: artifacts/*.deb
+          path: matchbox-artifacts/*.deb
 
   release:
-    name: iPXE Boot UEFI
+    name: Matchbox release
     runs-on: ubuntu-latest
-    needs: ipxeboot
+    needs: matchbox_build
 
     steps:
       - uses: actions/checkout@v4
@@ -99,8 +99,8 @@ jobs:
 
       - name: Build And Package
         run: |
-          ./ipxe/bin/build.sh determine_version
-          VERSION=$(cat ./ipxe/target/VERSION)
+          ./matchbox/bin/build.sh determine_version
+          VERSION=$(cat ./matchbox/target/VERSION)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Download all artifacts
@@ -111,5 +111,5 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ipxe-boot ${{ env.VERSION }}
+          name: matchbox ${{ env.VERSION }}
           files: release-artifacts/**/*.deb
