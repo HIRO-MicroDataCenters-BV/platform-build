@@ -105,6 +105,7 @@ package() {
     mkdir -p "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
     cp ${ROOT_DIR}/debian/* "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
     sed -i "s/0.0.0/${VERSION}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
+    sed -i "s/amd64/${PLATFORM}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
 
     mkdir -p ${PACKAGE_BINARY}
     cp "${TARGET_DIR}/ipxe/src/bin-${ARCH}-efi/ipxe.efi" ${PACKAGE_BINARY}
