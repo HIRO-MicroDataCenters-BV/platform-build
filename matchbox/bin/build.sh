@@ -115,35 +115,43 @@ package() {
     BUILD_DIR="${TARGET_DIR}/matchbox/_output/${SRC_PACKAGE_NAME}"
 
     PACKAGE_NAME="${PACKAGE_STEM}-v${VERSION}-linux-${PLATFORM}-${OS_VERSION}"
+    ROOT_PKG_DIR="${TARGET_DIR}/${PACKAGE_NAME}"    
 
-    PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/local/bin/${PACKAGE_STEM}"
-    SYSTEMD_SVC="${TARGET_DIR}/${PACKAGE_NAME}/etc/systemd/system"    
-    PACKAGE_DOCS="${TARGET_DIR}/${PACKAGE_NAME}/usr/local/share/doc/matchbox/"
-    PACKAGE_EXAMPLES="${TARGET_DIR}/${PACKAGE_NAME}/usr/local/share/doc/matchbox/examples"
-    PACKAGE_SCRIPTS="${TARGET_DIR}/${PACKAGE_NAME}//usr/local/share/matchbox/scripts/"
-    DATA_ASSETS_DIR="${TARGET_DIR}/${PACKAGE_NAME}/var/lib/matchbox"
+    PACKAGE_BIN_DIR="${ROOT_PKG_DIR}/usr/local/bin/${PACKAGE_STEM}"
+    SYSTEMD_SVC="${ROOT_PKG_DIR}/etc/systemd/system"
+    PACKAGE_DOCS="${ROOT_PKG_DIR}/usr/local/share/doc/matchbox/"
+    PACKAGE_EXAMPLES="${ROOT_PKG_DIR}/usr/local/share/doc/matchbox/examples"
+    PACKAGE_SCRIPTS="${ROOT_PKG_DIR}/usr/local/share/matchbox/scripts/"
+    DATA_ASSETS_DIR="${ROOT_PKG_DIR}/var/lib/matchbox"
+    ETC_DIR="${ROOT_PKG_DIR}/etc/matchbox"
+
+    rm -rf "${ROOT_PKG_DIR}"
 
     # Package artifacts
-    mkdir -p "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
-    cp ${ROOT_DIR}/debian/* "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
-    sed -i "s/0.0.0/${VERSION}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
+    mkdir -p "${ROOT_PKG_DIR}/DEBIAN"
+    cp ${ROOT_DIR}/debian/* "${ROOT_PKG_DIR}/DEBIAN"
+    sed -i "s/0.0.0/${VERSION}/" "${ROOT_PKG_DIR}/DEBIAN/control"
+    chmod 755 "${ROOT_PKG_DIR}/DEBIAN/postinst" "${ROOT_PKG_DIR}/DEBIAN/postrm" 2>/dev/null || true
 
     # Binary
-    mkdir -p ${PACKAGE_BINARY}
-    cp "${BUILD_DIR}/matchbox" "${PACKAGE_BINARY}/matchbox"
+    mkdir -p ${PACKAGE_BIN_DIR}
+    cp "${BUILD_DIR}/matchbox" "${PACKAGE_BIN_DIR}/${PACKAGE_STEM}"
+    chmod 755 "${PACKAGE_BIN_DIR}/${PACKAGE_STEM}"
 
     # systemd service
     mkdir -p ${SYSTEMD_SVC}
-    cp "${BUILD_DIR}/contrib/systemd/matchbox.service" "${SYSTEMD_SVC}"
+    cp "${BUILD_DIR}/contrib/systemd/matchbox.service" "${SYSTEMD_SVC}/"
+    chmod 644 "${SYSTEMD_SVC}/matchbox.service"
 
-    mkdir -p ${PACKAGE_DOCS}
-    cp -r "${BUILD_DIR}/docs/" "${PACKAGE_DOCS}"
+    # docs, examples, scripts
+    mkdir -p "${PACKAGE_DOCS}" "${PACKAGE_EXAMPLES}" "${PACKAGE_SCRIPTS}"
+    cp -r "${BUILD_DIR}/docs/"* "${PACKAGE_DOCS}/"
+    cp -r "${BUILD_DIR}/examples/"* "${PACKAGE_EXAMPLES}/"
+    cp -r "${BUILD_DIR}/scripts/"* "${PACKAGE_SCRIPTS}/"
+    chmod -R 755 "${PACKAGE_SCRIPTS}"
 
-    mkdir -p ${PACKAGE_EXAMPLES}
-    cp -r "${BUILD_DIR}/examples/" "${PACKAGE_EXAMPLES}"
-
-    mkdir -p ${PACKAGE_SCRIPTS}
-    cp -r "${BUILD_DIR}/scripts/" "${PACKAGE_SCRIPTS}"
+    mkdir -p "${DATA_ASSETS_DIR}/assets"
+    mkdir -p "${ETC_DIR}"
 
     # Building package
     dpkg-deb --build --root-owner-group "${PACKAGE_NAME}"
