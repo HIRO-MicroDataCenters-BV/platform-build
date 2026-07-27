@@ -9,3 +9,5 @@ vemdc/matchbox/matchbox_data/assets/ubuntu-26-live/filesystem.squashfs
 vemdc/matchbox/matchbox_data/groups/*
 
 ipxe/target/*
+
+matchbox/target/*
