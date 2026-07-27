@@ -52,13 +52,16 @@ install_dependencies() {
         liblzma-dev \
         build-essential \
         devscripts \
-        debhelper 
+        debhelper \
+        wget
 
     wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
 
     # Ensure /usr/local/go/bin is in your PATH
     export PATH=$PATH:/usr/local/go/bin
+    echo 'export PATH="$PATH"' >> ~/.bashrc
+    source ~/.bashrc
 
     echo "Dependencies installed."
 }
@@ -131,6 +134,7 @@ package() {
     mkdir -p "${ROOT_PKG_DIR}/DEBIAN"
     cp ${ROOT_DIR}/debian/* "${ROOT_PKG_DIR}/DEBIAN"
     sed -i "s/0.0.0/${VERSION}/" "${ROOT_PKG_DIR}/DEBIAN/control"
+    sed -i "s/amd64/${PLATFORM}/" "${ROOT_PKG_DIR}/DEBIAN/control"
     chmod 755 "${ROOT_PKG_DIR}/DEBIAN/preinst" \
               "${ROOT_PKG_DIR}/DEBIAN/postinst" \
               "${ROOT_PKG_DIR}/DEBIAN/postrm" 2>/dev/null || true
