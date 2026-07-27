@@ -75,7 +75,7 @@ build() {
     echo "Building binary..."
     ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
 
-    source ~/.bashrc
+    source /root/.bashrc
 
     mkdir -p ${TARGET_DIR}
     cd ${TARGET_DIR}
