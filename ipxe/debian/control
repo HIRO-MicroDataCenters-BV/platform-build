@@ -1,4 +1,4 @@
-Package: emdc-ipxe
+Package: ipxe-boot
 Version: 0.0.0
 Architecture: amd64
 Maintainer: <ktatarnikovathiro@gmail.com>
