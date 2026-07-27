@@ -22,7 +22,10 @@ main() {
             determine_version
             ;;
         install_dependencies)
-            install_dependencies
+            if [ $# -ne 2 ]; then
+                usage
+            fi
+            install_dependencies $2
             ;;
         build)
             if [ $# -ne 2 ]; then
@@ -45,6 +48,8 @@ main() {
 
 install_dependencies() {
     echo "Install dependencies ..."
+    ARCH="${1?Architecture not specified, e.g. arm64, amd64}"
+
     apt install -y \
         git \
         gcc \
@@ -55,8 +60,8 @@ install_dependencies() {
         debhelper \
         wget
 
-    wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+    wget https://go.dev/dl/go1.24.0.linux-${ARCH}.tar.gz
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.0.linux-${ARCH}.tar.gz
 
     # Ensure /usr/local/go/bin is in your PATH
     export PATH=$PATH:/usr/local/go/bin
