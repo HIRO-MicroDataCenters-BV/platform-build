@@ -73,7 +73,7 @@ jobs:
 
       - name: Collect deb packages
         run: |
-          mkdir -p artifacts
+          mkdir -p matchbox-artifacts
           DISTRO="${{ matrix.config.release_os }}"
 
           for f in ./matchbox/target/*.deb; do
