@@ -25,8 +25,7 @@ main() {
             if [ $# -ne 2 ]; then
                 usage
             fi
-            build $2
-            install_dependencies
+            install_dependencies $2
             ;;
         build)
             if [ $# -ne 2 ]; then
