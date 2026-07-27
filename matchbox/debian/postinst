@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        # Ensure target directories exist
+        mkdir -p /var/lib/matchbox/assets
+        mkdir -p /etc/matchbox
+
+        # Set correct ownership
+        chown -R matchbox:matchbox /var/lib/matchbox /etc/matchbox
+        chmod 755 /var/lib/matchbox
+        chmod 700 /etc/matchbox
+
+        # Reload systemd
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+        fi
+        ;;
+esac
+
+exit 0

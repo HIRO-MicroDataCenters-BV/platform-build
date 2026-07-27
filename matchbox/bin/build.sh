@@ -117,7 +117,7 @@ package() {
     PACKAGE_NAME="${PACKAGE_STEM}-v${VERSION}-linux-${PLATFORM}-${OS_VERSION}"
     ROOT_PKG_DIR="${TARGET_DIR}/${PACKAGE_NAME}"    
 
-    PACKAGE_BIN_DIR="${ROOT_PKG_DIR}/usr/local/bin/${PACKAGE_STEM}"
+    PACKAGE_BIN_DIR="${ROOT_PKG_DIR}/usr/local/bin/"
     SYSTEMD_SVC="${ROOT_PKG_DIR}/etc/systemd/system"
     PACKAGE_DOCS="${ROOT_PKG_DIR}/usr/local/share/doc/matchbox/"
     PACKAGE_EXAMPLES="${ROOT_PKG_DIR}/usr/local/share/doc/matchbox/examples"
@@ -131,12 +131,14 @@ package() {
     mkdir -p "${ROOT_PKG_DIR}/DEBIAN"
     cp ${ROOT_DIR}/debian/* "${ROOT_PKG_DIR}/DEBIAN"
     sed -i "s/0.0.0/${VERSION}/" "${ROOT_PKG_DIR}/DEBIAN/control"
-    chmod 755 "${ROOT_PKG_DIR}/DEBIAN/postinst" "${ROOT_PKG_DIR}/DEBIAN/postrm" 2>/dev/null || true
+    chmod 755 "${ROOT_PKG_DIR}/DEBIAN/preinst" \
+              "${ROOT_PKG_DIR}/DEBIAN/postinst" \
+              "${ROOT_PKG_DIR}/DEBIAN/postrm" 2>/dev/null || true
 
     # Binary
     mkdir -p ${PACKAGE_BIN_DIR}
-    cp "${BUILD_DIR}/matchbox" "${PACKAGE_BIN_DIR}/${PACKAGE_STEM}"
-    chmod 755 "${PACKAGE_BIN_DIR}/${PACKAGE_STEM}"
+    cp "${BUILD_DIR}/matchbox" "${PACKAGE_BIN_DIR}/"
+    chmod 755 "${PACKAGE_BIN_DIR}/matchbox"
 
     # systemd service
     mkdir -p ${SYSTEMD_SVC}

@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    install|upgrade)
+        # Create 'matchbox' system group if missing
+        if ! getent group matchbox >/dev/null; then
+            groupadd --system matchbox
+        fi
+
+        # Create 'matchbox' system user if missing
+        if ! getent passwd matchbox >/dev/null; then
+            useradd --system \
+                --gid matchbox \
+                --no-create-home \
+                --shell /usr/sbin/nologin \
+                --comment "Matchbox PXE Server" \
+                matchbox
+        fi
+        ;;
+esac
+
+exit 0

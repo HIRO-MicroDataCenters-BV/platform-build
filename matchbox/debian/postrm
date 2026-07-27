@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|purge)
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+        fi
+
+        if getent passwd matchbox >/dev/null; then
+            userdel matchbox
+        fi
+
+        if getent group matchbox >/dev/null; then
+            groupdel matchbox
+        fi
+        
+        ;;
+esac
+
+exit 0
