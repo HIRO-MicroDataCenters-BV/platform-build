@@ -52,10 +52,11 @@ install_dependencies() {
         liblzma-dev \
         build-essential \
         devscripts \
-        debhelper 
+        debhelper \
+        wget
 
     wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
 
     # Ensure /usr/local/go/bin is in your PATH
     export PATH=$PATH:/usr/local/go/bin
