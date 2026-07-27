@@ -1,0 +1,6 @@
+Package: matchbox
+Version: 0.0.0
+Architecture: amd64
+Maintainer: <ktatarnikovathiro@gmail.com>
+Description: Matchbox iPXE/PXE Server
+Documentation: https://github.com/poseidon/matchbox
