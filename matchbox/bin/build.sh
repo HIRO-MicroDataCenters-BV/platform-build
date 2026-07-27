@@ -60,6 +60,8 @@ install_dependencies() {
 
     # Ensure /usr/local/go/bin is in your PATH
     export PATH=$PATH:/usr/local/go/bin
+    echo 'export PATH="$PATH"' >> ~/.bashrc
+    source ~/.bashrc
 
     echo "Dependencies installed."
 }
@@ -132,6 +134,7 @@ package() {
     mkdir -p "${ROOT_PKG_DIR}/DEBIAN"
     cp ${ROOT_DIR}/debian/* "${ROOT_PKG_DIR}/DEBIAN"
     sed -i "s/0.0.0/${VERSION}/" "${ROOT_PKG_DIR}/DEBIAN/control"
+    sed -i "s/amd64/${PLATFORM}/" "${ROOT_PKG_DIR}/DEBIAN/control"
     chmod 755 "${ROOT_PKG_DIR}/DEBIAN/preinst" \
               "${ROOT_PKG_DIR}/DEBIAN/postinst" \
               "${ROOT_PKG_DIR}/DEBIAN/postrm" 2>/dev/null || true
