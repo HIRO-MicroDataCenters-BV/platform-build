@@ -76,7 +76,7 @@ jobs:
           mkdir -p frr-artifacts
           DISTRO="${{ matrix.config.release_os }}"
 
-          for f in ./frr/target/*.deb; do
+          for f in ./frr/artifacts/*.deb; do
             base=$(basename "$f" .deb)
             cp "$f" "frr-artifacts/"
           done

@@ -99,6 +99,7 @@ build_libyang() {
 
     PLATFORM_OS="${1?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
     LIBYANG_TAG="v${LIBYANG_VERSION}"
+    LIBYANG_DIR="${TARGET_DIR}/libyang"
 
     mkdir -p ${TARGET_DIR} ${ARTIFACTS_DIR}
     cd ${TARGET_DIR}
@@ -106,18 +107,14 @@ build_libyang() {
     git clone https://github.com/CESNET/libyang.git
     cd libyang
     git checkout ${LIBYANG_TAG}
-    mkdir build
-    cd build
-    cmake --install-prefix /usr -D CMAKE_BUILD_TYPE:String="Release" ..
-    make
 
     apkg build -i
 
-    # find ./pkg/pkgs/ -type f -name "*.deb" | while read -r file; do
-    #     filename=$(basename "$file")
-    #     new_filename="${filename%.deb}-${PLATFORM_OS}.deb"
-    #     cp "$file" "${ARTIFACTS_DIR}/${new_filename}"
-    # done
+    find "${LIBYANG_DIR}/pkg/pkgs/" -type f -name "*.deb" | while read -r file; do
+        filename=$(basename "$file")
+        new_filename="${filename%.deb}-${PLATFORM_OS}.deb"
+        cp "$file" "${ARTIFACTS_DIR}/${new_filename}"
+    done
 }
 
 build_frr() {
