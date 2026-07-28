@@ -68,15 +68,14 @@ jobs:
       - name: Build And Package
         run: |
           ./frr/bin/build.sh determine_version
-          ./frr/bin/build.sh build ${{ matrix.config.arch }} ${{ matrix.config.release_os }}
-          ./frr/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }} ${{ matrix.config.release_os }}
+          ./frr/bin/build.sh build ${{ matrix.config.release_os }}
 
       - name: Collect deb packages
         run: |
           mkdir -p frr-artifacts
           DISTRO="${{ matrix.config.release_os }}"
 
-          for f in ./frr/artifacts/*.deb; do
+          for f in ./frr/target/artifacts/*.deb; do
             base=$(basename "$f" .deb)
             cp "$f" "frr-artifacts/"
           done

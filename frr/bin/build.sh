@@ -11,7 +11,7 @@ LIBYANG_VERSION=5.8.6
 ARTIFACTS_DIR="${TARGET_DIR}/artifacts"
 
 usage() {
-    echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64> <os: ubuntu-26.04>, package <arch: arm64|x86_64> <platform: amd64|arm64> <os: ubuntu-26.04>}"
+    echo "Usage: $0 {install_dependencies, determine_version, build <os: ubuntu-26.04>}"
     exit 1
 }
 
@@ -27,16 +27,10 @@ main() {
             install_dependencies
             ;;
         build)
-            if [ $# -ne 3 ]; then
+            if [ $# -ne 2 ]; then
                 usage
             fi
-            build $2 $3
-            ;;
-        package)
-            if [ $# -ne 4 ]; then
-                usage
-            fi
-            package $2 $3 $4
+            build $2
             ;;
         *)
             echo "Error: Invalid command '$1'"
@@ -52,6 +46,9 @@ install_dependencies() {
 
     apt install -y\
         git \
+        sudo \
+        git-buildpackage \
+        equivs \
         autoconf \
         automake \
         libtool \
@@ -87,11 +84,10 @@ install_dependencies() {
 
 build() {
     echo "Building binary..."
-    ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
-    PLATFORM_OS="${2?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
+    PLATFORM_OS="${1?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
 
     build_libyang "${PLATFORM_OS}"
-    # build_frr "${ARCH}"
+    build_frr "${PLATFORM_OS}"
 }
 
 build_libyang() {
@@ -131,37 +127,31 @@ build_frr() {
     cd frr
     git checkout ${FRR_TAG}
 
+    echo "Adding extra flags to debian/rules"
+    sed -i '/--enable-snmp \\/a \
+\t\t--enable-vrf \\\
+\t\t--enable-vpnv4 \\\
+\t\t--enable-vpnv6 \\\
+\t\t--enable-srv6 \\\
+\t\t--with-pkg-extra-version=-HIROFRRVersion \\' debian/rules
+
     echo "Building dependencies..."
 
-    # mk-build-deps --install --remove debian/control
+    sudo mk-build-deps --install --remove debian/control
 
-    # echo "Building frr..."
-    # ./bootstrap.sh
+    echo "Building frr..."
 
-    # ./configure \
-    #     --prefix=/usr \
-    #     --includedir=\${prefix}/include \
-    #     --bindir=\${prefix}/bin \
-    #     --sbindir=\${prefix}/lib/frr \
-    #     --libdir=\${prefix}/lib/frr \
-    #     --libexecdir=\${prefix}/lib/frr \
-    #     --sysconfdir=/etc \
-    #     --localstatedir=/var \
-    #     --with-moduledir=\${prefix}/lib/frr/modules \
-    #     --enable-configfile-mask=0640 \
-    #     --enable-logfile-mask=0640 \
-    #     --enable-snmp \
-    #     --enable-multipath=256 \
-    #     --enable-vrf \
-    #     --enable-vpnv4 \
-    #     --enable-vpnv6 \
-    #     --enable-srv6 \
-    #     --enable-user=frr \
-    #     --enable-group=frr \
-    #     --enable-vty-group=frrvty \
-    #     --with-pkg-git-version \
-    #     --with-pkg-extra-version=-HIROFRRVersion
-    # make
+    gbp buildpackage \
+        --git-builder=dpkg-buildpackage \
+        --git-debian-branch="${FRR_TAG}" \
+        --git-ignore-branch \
+        --git-ignore-new -uc -us -b -j$(nproc)
+
+    find "${TARGET_DIR}" -type f -name "*.deb" | while read -r file; do
+        filename=$(basename "$file")
+        new_filename="${filename%.deb}-${PLATFORM_OS}.deb"
+        cp "$file" "${ARTIFACTS_DIR}/${new_filename}"
+    done
 
     echo "Binary is ready."
 }
@@ -184,31 +174,6 @@ determine_version() {
     fi
     echo "Version ${VERSION}"
     echo -n "${VERSION}" > "${VERSION_PATH}"
-}
-
-package() {
-    echo "Packaging ..."
-    ARCH="${1?Architecture not specified, e.g. arm64|x86_64}"
-    PLATFORM="${2?Platform not specified, e.g. arm64|amd64}"
-    OS_VERSION="${3?OS not specified, e.g. ubuntu-22.10|ubuntu-26.04}"
-
-    cd "${TARGET_DIR}"
-
-    VERSION=$(cat ${VERSION_PATH})
-    PACKAGE_NAME="${PACKAGE_STEM}-${VERSION}_${PLATFORM}-${OS_VERSION}"
-    PACKAGE_BINARY="${TARGET_DIR}/${PACKAGE_NAME}/usr/lib/${PACKAGE_STEM}/"
-
-    mkdir -p "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
-    cp ${ROOT_DIR}/debian/* "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN"
-    sed -i "s/0.0.0/${VERSION}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
-    sed -i "s/amd64/${PLATFORM}/" "${TARGET_DIR}/${PACKAGE_NAME}/DEBIAN/control"
-
-    mkdir -p ${PACKAGE_BINARY}
-    cp "${TARGET_DIR}/ipxe/src/bin-${ARCH}-efi/ipxe.efi" ${PACKAGE_BINARY}
-    cp "${TARGET_DIR}/ipxe/src/bin-${ARCH}-efi/snponly.efi" ${PACKAGE_BINARY}
-    dpkg-deb --build --root-owner-group "${PACKAGE_NAME}"
-
-    echo "Package is ready."
 }
 
 main "$@"
