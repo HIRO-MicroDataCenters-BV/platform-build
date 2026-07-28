@@ -7,9 +7,11 @@ TARGET_DIR="${ROOT_DIR}/target"
 VERSION_PATH="${TARGET_DIR}/VERSION"
 RELEASE_DIR="${TARGET_DIR}/release"
 PACKAGE_STEM=frr
+LIBYANG_VERSION=5.8.6
+ARTIFACTS_DIR="${TARGET_DIR}/artifacts"
 
 usage() {
-    echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64>, package <arch: arm64|x86_64> <platform: amd64|arm64> <os: ubuntu-26.04>}"
+    echo "Usage: $0 {install_dependencies, determine_version, build <arch: arm64, x86_64> <os: ubuntu-26.04>, package <arch: arm64|x86_64> <platform: amd64|arm64> <os: ubuntu-26.04>}"
     exit 1
 }
 
@@ -25,10 +27,10 @@ main() {
             install_dependencies
             ;;
         build)
-            if [ $# -ne 2 ]; then
+            if [ $# -ne 3 ]; then
                 usage
             fi
-            build $2
+            build $2 $3
             ;;
         package)
             if [ $# -ne 4 ]; then
@@ -46,6 +48,8 @@ main() {
 install_dependencies() {
     echo "Install dependencies ..."
 
+    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install -y tzdata
+
     apt install -y\
         git \
         autoconf \
@@ -62,6 +66,7 @@ install_dependencies() {
         libc-ares-dev \
         python3-dev \
         python3-sphinx \
+        python3-pip \
         install-info \
         build-essential \
         libsnmp-dev \
@@ -70,12 +75,52 @@ install_dependencies() {
         libelf-dev \
         libunwind-dev \
         protobuf-c-compiler \
-        libprotobuf-c-dev
+        libprotobuf-c-dev \
+        fakeroot \
+        debhelper \
+        devscripts
+
+    pip3 install apkg
 
     echo "Dependencies installed."
 }
 
 build() {
+    echo "Building binary..."
+    ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
+    PLATFORM_OS="${2?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
+
+    build_libyang "${PLATFORM_OS}"
+    # build_frr "${ARCH}"
+}
+
+build_libyang() {
+    echo "Building libyang..."
+
+    PLATFORM_OS="${1?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
+    LIBYANG_TAG="v${LIBYANG_VERSION}"
+
+    mkdir -p ${TARGET_DIR} ${ARTIFACTS_DIR}
+    cd ${TARGET_DIR}
+
+    git clone https://github.com/CESNET/libyang.git
+    cd libyang
+    git checkout ${LIBYANG_TAG}
+    mkdir build
+    cd build
+    cmake --install-prefix /usr -D CMAKE_BUILD_TYPE:String="Release" ..
+    make
+
+    apkg build -i
+
+    # find ./pkg/pkgs/ -type f -name "*.deb" | while read -r file; do
+    #     filename=$(basename "$file")
+    #     new_filename="${filename%.deb}-${PLATFORM_OS}.deb"
+    #     cp "$file" "${ARTIFACTS_DIR}/${new_filename}"
+    # done
+}
+
+build_frr() {
     echo "Building binary..."
     ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
 
@@ -89,7 +134,37 @@ build() {
     cd frr
     git checkout ${FRR_TAG}
 
+    echo "Building dependencies..."
 
+    # mk-build-deps --install --remove debian/control
+
+    # echo "Building frr..."
+    # ./bootstrap.sh
+
+    # ./configure \
+    #     --prefix=/usr \
+    #     --includedir=\${prefix}/include \
+    #     --bindir=\${prefix}/bin \
+    #     --sbindir=\${prefix}/lib/frr \
+    #     --libdir=\${prefix}/lib/frr \
+    #     --libexecdir=\${prefix}/lib/frr \
+    #     --sysconfdir=/etc \
+    #     --localstatedir=/var \
+    #     --with-moduledir=\${prefix}/lib/frr/modules \
+    #     --enable-configfile-mask=0640 \
+    #     --enable-logfile-mask=0640 \
+    #     --enable-snmp \
+    #     --enable-multipath=256 \
+    #     --enable-vrf \
+    #     --enable-vpnv4 \
+    #     --enable-vpnv6 \
+    #     --enable-srv6 \
+    #     --enable-user=frr \
+    #     --enable-group=frr \
+    #     --enable-vty-group=frrvty \
+    #     --with-pkg-git-version \
+    #     --with-pkg-extra-version=-HIROFRRVersion
+    # make
 
     echo "Binary is ready."
 }
