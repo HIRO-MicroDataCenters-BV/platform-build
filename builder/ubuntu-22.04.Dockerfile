@@ -11,5 +11,6 @@ COPY . .
 
 RUN ./ipxe/bin/build.sh install_dependencies
 RUN ./matchbox/bin/build.sh install_dependencies $TARGETARCH
+RUN ./frr/bin/build.sh install_dependencies
 
 ENTRYPOINT [ "/bin/bash" ]
