@@ -77,7 +77,9 @@ install_dependencies() {
         libprotobuf-c-dev \
         fakeroot \
         debhelper \
-        devscripts
+        devscripts \
+        cmake \
+        libpcre2-dev
 
     pip3 install apkg
 
@@ -89,7 +91,7 @@ build() {
     PLATFORM_OS="${1?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
 
     build_libyang "${PLATFORM_OS}"
-    build_frr "${PLATFORM_OS}"
+    # build_frr "${PLATFORM_OS}"
 }
 
 build_libyang() {
@@ -106,6 +108,8 @@ build_libyang() {
     cd libyang
     git checkout ${LIBYANG_TAG}
 
+    export DH_OPTIONS="--no-preserve=ownership"
+
     apkg build -i
 
     find "${LIBYANG_DIR}/pkg/pkgs/" -type f -name "*.deb" | while read -r file; do
@@ -119,7 +123,7 @@ build_frr() {
     echo "Building binary..."
     ARCH="${1?Architecture not specified, e.g. arm64, x86_64}"
 
-    mkdir -p ${TARGET_DIR}
+    mkdir -p ${TARGET_DIR} ${ARTIFACTS_DIR}
     cd ${TARGET_DIR}
 
     VERSION=$(cat ${VERSION_PATH})
@@ -139,11 +143,16 @@ build_frr() {
 
     echo "Building dependencies..."
 
-    sudo mk-build-deps --install --remove debian/control
+    DEBIAN_FRONTEND=noninteractive mk-build-deps \
+        --install --remove \
+        --tool "apt-get -y --no-install-recommends" \
+        debian/control
 
     echo "Building frr..."
 
-    gbp buildpackage \
+    export DH_OPTIONS="--no-preserve=ownership"
+
+    fakeroot gbp buildpackage \
         --git-builder=dpkg-buildpackage \
         --git-debian-branch="${FRR_TAG}" \
         --git-ignore-branch \
