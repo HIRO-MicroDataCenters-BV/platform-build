@@ -2,6 +2,10 @@ FROM ubuntu:26.04 AS builder
 
 ARG TARGETARCH
 
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
 RUN apt-get update && \
     apt upgrade -y
 

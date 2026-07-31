@@ -45,6 +45,7 @@ main() {
 
 install_dependencies() {
     echo "Install dependencies ..."
+
     apt install -y \
         git \
         gcc \
@@ -53,6 +54,7 @@ install_dependencies() {
         build-essential \
         devscripts \
         debhelper 
+
     echo "Dependencies installed."
 }
 
