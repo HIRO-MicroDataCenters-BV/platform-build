@@ -2,6 +2,9 @@ FROM ubuntu:24.04 AS builder
 
 ARG TARGETARCH
 
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
 RUN apt-get update && \
     apt upgrade -y
 

@@ -42,7 +42,9 @@ main() {
 install_dependencies() {
     echo "Install dependencies ..."
 
-    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install -y tzdata
+    apt install -y tzdata
+
+    apt install -y apt-utils
 
     apt install -y\
         git \
