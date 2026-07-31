@@ -110,7 +110,7 @@ build_libyang() {
 
     export DH_OPTIONS="--no-preserve=ownership"
 
-    apkg build -i
+    fakeroot apkg build -i
 
     find "${LIBYANG_DIR}/pkg/pkgs/" -type f -name "*.deb" | while read -r file; do
         filename=$(basename "$file")
