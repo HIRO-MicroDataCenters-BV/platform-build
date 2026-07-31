@@ -91,7 +91,7 @@ build() {
     PLATFORM_OS="${1?Platform OS, e.g. ubuntu-24.04|ubuntu-26.04}"
 
     build_libyang "${PLATFORM_OS}"
-    # build_frr "${PLATFORM_OS}"
+    build_frr "${PLATFORM_OS}"
 }
 
 build_libyang() {
