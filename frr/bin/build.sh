@@ -79,7 +79,7 @@ install_dependencies() {
         debhelper \
         devscripts
 
-    pip3 install apkg
+    pip3 install --break-system-packages apkg
 
     echo "Dependencies installed."
 }
