@@ -68,8 +68,8 @@ jobs:
       - name: Build And Package
         run: |
           ./containerd-fuse-overlayfs/bin/build.sh determine_version
-          ./containerd-fuse-overlayfs/bin/build.sh build ${{ matrix.config.arch }}
-          ./containerd-fuse-overlayfs/bin/build.sh package ${{ matrix.config.arch }} ${{ matrix.config.platform }} ${{ matrix.config.release_os }}
+          ./containerd-fuse-overlayfs/bin/build.sh build ${{ matrix.config.platform }}
+          ./containerd-fuse-overlayfs/bin/build.sh package ${{ matrix.config.platform }} ${{ matrix.config.release_os }}
 
       - name: Collect deb packages
         run: |
