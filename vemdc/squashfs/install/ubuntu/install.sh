@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 cat <<EOF > /etc/apt/sources.list
-deb http://archive.ubuntu.com/ubuntu/ resolute main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu/ resolute-updates main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu/ resolute-security main restricted universe multiverse
+deb http://nl.archive.ubuntu.com/ubuntu/ resolute main restricted universe multiverse
+deb http://nl.archive.ubuntu.com/ubuntu/ resolute-updates main restricted universe multiverse
+deb http://nl.archive.ubuntu.com/ubuntu/ resolute-security main restricted universe multiverse
 EOF
 
 apt update 

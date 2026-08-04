@@ -12,7 +12,7 @@ init() {
 
 	rm -rf ${ROOT_DIR}/*
 
-	debootstrap resolute ${ROOT_DIR} http://archive.ubuntu.com/ubuntu/
+	debootstrap resolute ${ROOT_DIR} http://nl.archive.ubuntu.com/ubuntu/
 }
 
 install() {
