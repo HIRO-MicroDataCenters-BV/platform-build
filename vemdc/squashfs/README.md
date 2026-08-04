@@ -21,11 +21,11 @@ sudo ./build.sh cleanup
 ## Build filesystem
 
 ```bash
-sudo ./build.sh build
+./build.sh build
 ```
 
 ## Upload filesystem
 
 ```bash
-sudo ./build.sh upload
+./build.sh upload
 ```
