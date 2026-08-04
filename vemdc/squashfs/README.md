@@ -15,13 +15,13 @@ sudo ./build.sh install
 ## Cleanup 
 
 ```bash
-sudo ./build.sh cleanup
+./build.sh cleanup
 ```
 
 ## Build filesystem
 
 ```bash
-./build.sh build
+sudo ./build.sh build
 ```
 
 ## Upload filesystem

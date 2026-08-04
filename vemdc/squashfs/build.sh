@@ -72,7 +72,7 @@ upload() {
 	sudo chown ${USER}:${USER} ${BUILD_DIR}/*
 	cp ${BUILD_DIR}/* ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/
 	echo "kernel, initramfs, squashfs have been copied to matchbox assets."
-	ls ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/*
+	ls -ltra ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/*
 }
 
 "$@"
