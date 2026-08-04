@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+
+apt install -y --no-install-recommends \
+	fuse-overlayfs \
+	containerd
+
+
 mkdir -p /etc/containerd
 containerd config default | tee /etc/containerd/config.toml > /dev/null
 
