@@ -1,0 +1,4 @@
+Explanation: Prioritize custom packages from HiroMDC repository
+Package: *
+Pin: release o=HiroMDC
+Pin-Priority: 900
