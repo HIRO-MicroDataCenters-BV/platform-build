@@ -100,7 +100,7 @@ jobs:
       - name: Build And Package
         run: |
           ./containerd-fuse-overlayfs/bin/build.sh determine_version
-          VERSION=$(cat ./cfo/target/VERSION)
+          VERSION=$(cat ./containerd-fuse-overlayfs/target/VERSION)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Download all artifacts
