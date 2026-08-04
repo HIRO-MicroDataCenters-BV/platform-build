@@ -1,0 +1,12 @@
+[Unit]
+Description=containerd fuse-overlayfs snapshotter
+After=network.target
+
+[Service]
+ExecStartPre=/usr/bin/mkdir -p /var/lib/containerd-fuse-overlayfs
+ExecStart=/usr/local/bin/containerd-fuse-overlayfs-grpc /run/containerd-fuse-overlayfs.sock /var/lib/containerd-fuse-overlayfs
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
