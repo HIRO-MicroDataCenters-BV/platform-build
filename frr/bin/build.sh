@@ -112,6 +112,11 @@ build_libyang() {
 
     fakeroot apkg build -i
 
+    find "${LIBYANG_DIR}/pkg/pkgs/" -type f -name "*.deb" | while read -r file; do
+        filename=$(basename "$file")
+        new_filename="${filename%.deb}-${PLATFORM_OS}.deb"
+        cp "$file" "${ARTIFACTS_DIR}/${new_filename}"
+    done
 }
 
 build_frr() {
