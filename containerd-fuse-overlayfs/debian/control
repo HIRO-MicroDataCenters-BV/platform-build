@@ -1,0 +1,6 @@
+Package: containerd-fuse-overlayfs
+Version: 0.0.0
+Architecture: amd64
+Maintainer: <ktatarnikovathiro@gmail.com>
+Description: containerd-fuse-overlayfs
+Documentation: https://github.com/poseidon/matchbox

@@ -13,3 +13,5 @@ ipxe/target/*
 matchbox/target/*
 
 frr/target/*
+
+containerd-fuse-overlayfs/target/*
