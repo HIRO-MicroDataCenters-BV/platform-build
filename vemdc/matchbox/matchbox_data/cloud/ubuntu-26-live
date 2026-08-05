@@ -5,8 +5,6 @@ autoinstall:
 
   identity:
     hostname: {{.hostname}}
-    username: {{.username}}
-    password: "{{.password_hash}}"
 
   locale: en_US.UTF-8
   keyboard:

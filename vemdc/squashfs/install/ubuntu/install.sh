@@ -6,7 +6,7 @@ deb http://nl.archive.ubuntu.com/ubuntu/ resolute-updates main restricted univer
 deb http://nl.archive.ubuntu.com/ubuntu/ resolute-security main restricted universe multiverse
 EOF
 
-apt update 
+apt update && apt upgrade -y
 
 apt install -y --no-install-recommends \
 	live-boot \
@@ -24,19 +24,33 @@ apt install -y --no-install-recommends \
 # configure root
 echo root:r | chpasswd
 
-# configure ubuntu
-useradd -m -s /bin/bash ubuntu
+# configure user ubuntu
+useradd -m -s /bin/bash -U ubuntu
+echo ubuntu:u | chpasswd
+passwd -u ubuntu
+
+chage -E -1 -M 99999 -W 7 -I -1 ubuntu
+
 # 2. Add the user to the 'sudo' group
 usermod -aG sudo ubuntu
+
 # 3. Configure passwordless sudo for the ubuntu user
 echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu
 chmod 0440 /etc/sudoers.d/ubuntu
+
 mkdir -p /home/ubuntu/.ssh
 chmod 700 /home/ubuntu/.ssh
-echo ubuntu:u | chpasswd
+chown -R ubuntu:ubuntu /home/ubuntu
+chmod 755 /home/ubuntu
 
 
 #### Configure cloud init
+mkdir -p /etc/cloud/cloud.cfg.d/
 echo "datasource_list: [ NoCloud ]" > /etc/cloud/cloud.cfg.d/90_datasource_nocloud.cfg
+
 # Enable cloud-init services
 systemctl enable cloud-init-local.service cloud-config.service cloud-final.service
+
+# # purge cloud init
+# apt-get purge -y cloud-init
+# rm -rf /etc/cloud/ /var/lib/cloud/
