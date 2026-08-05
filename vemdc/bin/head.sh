@@ -91,7 +91,9 @@ configure_node_agent() {
     echo "Node agent..."
 
     sudo systemctl enable --now libvirtd
+    sudo systemctl restart libvirtd
     sudo systemctl enable --now node-agent
+    sudo systemctl restart libvirtd
 
     echo "Node agent configured."
 }
