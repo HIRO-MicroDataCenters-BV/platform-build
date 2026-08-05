@@ -5,6 +5,9 @@ PROJECT_ROOT_DIR="${SCRIPT_DIR}/.."
 ROOT_DIR=${SCRIPT_DIR}/diskless/chroot
 BUILD_DIR=${SCRIPT_DIR}/diskless/build
 
+DISTRO=resolute
+DISTRO_URL=http://nl.archive.ubuntu.com/ubuntu/
+
 init() {
 
 	mkdir -p ${ROOT_DIR}
@@ -12,7 +15,7 @@ init() {
 
 	rm -rf ${ROOT_DIR}/*
 
-	debootstrap resolute ${ROOT_DIR} http://nl.archive.ubuntu.com/ubuntu/
+	debootstrap ${DISTRO} ${ROOT_DIR} ${DISTRO_URL}
 }
 
 install() {
