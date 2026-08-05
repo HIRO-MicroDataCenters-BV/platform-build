@@ -47,12 +47,6 @@ chmod 755 /home/ubuntu
 #### Configure cloud init
 mkdir -p /etc/cloud/cloud.cfg.d/
 echo "datasource_list: [ NoCloud ]" > /etc/cloud/cloud.cfg.d/90_datasource_nocloud.cfg
-# cat << 'EOF' > /etc/cloud/cloud.cfg.d/99-disable-password-lock.cfg
-# ssh_pwauth: true
-# lock_passwd: false
-# chpasswd:
-#   expire: false
-# EOF
 
 # Enable cloud-init services
 systemctl enable cloud-init-local.service cloud-config.service cloud-final.service
