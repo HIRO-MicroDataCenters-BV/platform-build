@@ -60,6 +60,7 @@ install_dependencies() {
         genisoimage \
         qemu-kvm \
         libvirt-daemon-system \
+        libvirt-daemon-driver-qemu \
         virt-manager
 
     wget -P "${UBUNTU_LIVE_ISO_DEST}" https://releases.ubuntu.com/26.04/ubuntu-26.04-live-server-amd64.iso

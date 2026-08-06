@@ -68,6 +68,7 @@ EOF
         matchbox \
         ipxe-boot \
         libvirt-daemon \
+        libvirt-daemon-driver-qemu \
         node-agent
 
     ### Installing kubernetes ###
@@ -90,10 +91,11 @@ EOF
 configure_node_agent() {
     echo "Node agent..."
 
+    sudo systemctl daemon-reload
     sudo systemctl enable --now libvirtd
     sudo systemctl restart libvirtd
-    sudo systemctl enable --now node-agent
-    sudo systemctl restart node-agent
+    sudo systemctl enable --now node_agent
+    sudo systemctl restart node_agent
 
     echo "Node agent configured."
 }
