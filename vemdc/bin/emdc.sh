@@ -15,7 +15,7 @@ usage() {
 }
 
 main() {
-    if [ $# -le 1 ]; then
+    if [ $# -lt 1 ]; then
         usage
     fi
     case "$1" in
@@ -87,13 +87,13 @@ delete_network() {
 }
 
 launch_head() {
-    HEAD_NAME=network-provisioner-test
+    HEAD_NAME=network-provisioner
     MAC_ADDRESS="52:54:11:00:00:00"
 
     make_iso
 
-    cp ${UBUNTU_CLOUD_IMG_DEST}/resolute-server-cloudimg-amd64.img ${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img
-    qemu-img resize ${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img +10G
+    cp "${UBUNTU_CLOUD_IMG_DEST}/resolute-server-cloudimg-amd64.img" "${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img"
+    qemu-img resize "${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img" +10G
 
     # copy image
     virt-install \
@@ -102,7 +102,7 @@ launch_head() {
         --memory=8192 \
         --memorybacking=source.type=memfd,access.mode=shared \
         --os-variant=ubuntu24.04 \
-        --disk path="${UBUNTU_CLOUD_IMG_DEST}/network-provisioner-test.img",format=qcow2,bus=virtio,size=10 \
+        --disk path="${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img",format=qcow2,bus=virtio,size=10 \
         --disk path="${TARGET_DIR}/seed.iso",device=cdrom \
         --network network=emdc-net,mac=${MAC_ADDRESS},model=virtio \
         --filesystem source=${ROOT_DIR},target=root_dir,type=mount,driver.type=virtiofs \

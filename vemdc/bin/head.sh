@@ -38,9 +38,37 @@ main() {
 install_dependencies() {
     echo "installing dependencies ..."
 
+    ## Installing HiroMDC repo
+
+    curl -fsSL https://hiro-microdatacenters-bv.github.io/packages-deb/repo.gpg | \
+        tee /usr/share/keyrings/repo.gpg >/dev/null
+
+    echo "deb [signed-by=/usr/share/keyrings/repo.gpg] \
+        https://hiro-microdatacenters-bv.github.io/packages-deb resolute main" |
+        tee /etc/apt/sources.list.d/hiro-mds-packages-deb.list
+
+    sudo touch /etc/apt/preferences.d/hiromdc.pref
+
+    cat <<EOF | sudo tee /etc/apt/preferences.d/hiromdc.pref    
+Explanation: Prioritize custom packages from HiroMDC repository
+Package: *
+Pin: release o=HiroMDC
+Pin-Priority: 900
+EOF
+
     ### Installing general dependencies ###
-    apt update
-    apt install -y wget radvd kea-dhcp4-server kea-dhcp6-server containerd
+    apt update && apt upgrade -y
+
+    apt install -y \
+        wget \
+        radvd \
+        kea-dhcp4-server \
+        kea-dhcp6-server \
+        containerd \
+        matchbox \
+        ipxe-boot \
+        libvirt-daemon \
+        node-agent
 
     ### Installing kubernetes ###
     apt-get install -y apt-transport-https ca-certificates curl gpg
@@ -59,21 +87,37 @@ install_dependencies() {
     echo "Dependencies installed."
 }
 
-install_matchbox() {
-    echo "Installing matchbox..."
-    UNTAR_DIR=matchbox-v0.10.0-linux-amd64
+configure_node_agent() {
+    echo "Node agent..."
 
-    wget -P "${TARGET}" https://github.com/poseidon/matchbox/releases/download/v0.10.0/matchbox-v0.10.0-linux-amd64.tar.gz
-    tar xzvf "${TARGET}/matchbox-v0.10.0-linux-amd64.tar.gz" -C "${TARGET}"
+    sudo systemctl enable --now libvirtd
+    sudo systemctl restart libvirtd
+    sudo systemctl enable --now node-agent
+    sudo systemctl restart node-agent
 
-    sudo cp "${TARGET}/${UNTAR_DIR}/matchbox" /usr/local/bin
+    echo "Node agent configured."
+}
+
+configure_ipxe_boot() {
+    echo "Configuring IPXE boot..."
+
+    MATCHBOX_DIR="${ROOT_DIR}/matchbox/matchbox_data"
+
+    cp /usr/lib/ipxe-boot/ipxe.efi ${MATCHBOX_DIR}/assets/ipxe.efi
+    cp /usr/lib/ipxe-boot/snponly.efi ${MATCHBOX_DIR}/assets/snponly.efi
+
+    echo "IPXE boot configured."
+}
+
+configure_matchbox() {
+    echo "Configuring matchbox..."
+
     sudo cp "${ETC_DIR}/matchbox/matchbox.service" /etc/systemd/system/matchbox.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now matchbox
+    sudo systemctl restart matchbox
 
-    useradd -U matchbox
-    systemctl enable matchbox.service
-    systemctl restart matchbox.service
- 
-    echo "Matchbox installed"
+    echo "Matchbox configured."
 }
 
 install_k9s() {
@@ -117,8 +161,8 @@ configure_containerd() {
     sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
 
     # Restart and enable containerd
-    systemctl restart containerd
     systemctl enable containerd
+    systemctl restart containerd
 
     echo "Containerd is installed."
 }
@@ -163,11 +207,12 @@ EOF
 }
 
 setup() {
-    install_matchbox
     configure_kea
     configure_radvd
     configure_containerd
     configure_kubernetes
+    configure_matchbox
+    configure_ipxe_boot
     install_k9s
 }
 
