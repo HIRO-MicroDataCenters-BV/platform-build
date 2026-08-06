@@ -213,6 +213,7 @@ setup() {
     configure_kubernetes
     configure_matchbox
     configure_ipxe_boot
+    configure_node_agent
     install_k9s
 }
 
