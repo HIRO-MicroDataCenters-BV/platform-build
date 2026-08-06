@@ -38,7 +38,7 @@
 
 ### Generate join command
 ```bash
-    kubeadm token create --print-join-command
+    sudo kubeadm token create --print-join-command
 ```
 
 # Boot Worker Node
