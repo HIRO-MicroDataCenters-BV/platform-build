@@ -15,6 +15,7 @@ apt update -y
 
 # node_agent dependencies
 apt install -y \
+    libvirt-daemon-driver-qemu \
     libvirt-daemon
 
 apt install -y \
