@@ -6,7 +6,7 @@ Documentation=https://github.com/poseidon/matchbox
 User=ubuntu
 Group=ubuntu
 Environment="MATCHBOX_ADDRESS=0.0.0.0:8080"
-ExecStart=/usr/local/bin/matchbox -address 0.0.0.0:8080 -data-path /mnt/platform-build/matchbox/matchbox_data -assets-path /mnt/platform-build/matchbox/matchbox_data/assets  
+ExecStart=/usr/local/bin/matchbox -address 0.0.0.0:8080 -data-path /mnt/platform-build/vemdc/matchbox/matchbox_data -assets-path /mnt/platform-build/vemdc/matchbox/matchbox_data/assets  
 
 # systemd.exec
 ProtectHome=yes

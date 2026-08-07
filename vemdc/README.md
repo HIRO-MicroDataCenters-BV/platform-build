@@ -23,17 +23,17 @@
 ```
 ### Install dependencies to head node
 ```bash
-    sudo /mnt/platform-build/bin/head.sh install_dependencies
+    sudo /mnt/platform-build/vemdc/bin/head.sh install_dependencies
 ```
 
 ### Configure Netboot, DHCP, Matchbox and other services
 ```bash
-    sudo /mnt/platform-build/bin/head.sh setup
+    sudo /mnt/platform-build/vemdc/bin/head.sh setup
 ```
 
 ### Configure kubeconfig
 ```bash
-    /mnt/platform-build/bin/head.sh configure_kubectl
+    /mnt/platform-build/vemdc/bin/head.sh configure_kubectl
 ```
 
 ### Generate join command

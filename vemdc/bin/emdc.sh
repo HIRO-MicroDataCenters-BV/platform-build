@@ -2,6 +2,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+PLATFORM_BUILD_DIR="$(dirname "$ROOT_DIR")"
 ETC_DIR="${ROOT_DIR}/etc"
 UBUNTU_LIVE_ISO_DEST="${ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26/"
 TARGET_DIR="${ROOT_DIR}/target"
@@ -106,7 +107,7 @@ launch_head() {
         --disk path="${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img",format=qcow2,bus=virtio,size=10 \
         --disk path="${TARGET_DIR}/seed.iso",device=cdrom \
         --network network=emdc-net,mac=${MAC_ADDRESS},model=virtio \
-        --filesystem source=${ROOT_DIR},target=root_dir,type=mount,driver.type=virtiofs \
+        --filesystem source=${PLATFORM_BUILD_DIR},target=root_dir,type=mount,driver.type=virtiofs \
         --import \
         --noautoconsole
 }
