@@ -1,0 +1,13 @@
+{
+    "id": "example-worker-01",
+    "name": "example-worker-01",
+    "profile": "ubuntu-26-live",
+    "selector": {    
+        "uuid": "62988faa-8663-4716-988f-77bbae297347"
+    },
+    "metadata": {
+        "hostname": "example-worker-01",
+        "username": "ubuntu",
+        "password_hash": "/R4u/A3FVILWY8$.q7Syuoos7RDXUYzFTE1OGtIHzo41D88UWeri6T4x.V8h8qFwafzbiWkGL2ORh4BLvXtzVdqL0sYQF5j596UT0"
+    }
+}
