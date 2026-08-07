@@ -41,6 +41,15 @@
     sudo kubeadm token create --print-join-command
 ```
 
+the kubeadm will print join command similar to the one below
+
+```bash
+    kubeadm join 192.168.22.2:6443 \
+        --token g6ukfz.hatp8igrhpxqf817 \
+        --discovery-token-ca-cert-hash sha256:bf717f7...c51c14
+```
+
+
 # Boot Worker Node
 
 ## Launch Worker 
@@ -50,3 +59,10 @@
 ```
 
 ## Execute join command on a worker
+
+```bash
+    sudo kubeadm join 192.168.22.2:6443 \
+        --token g6ukfz.hatp8igrhpxqf817 \
+        --discovery-token-ca-cert-hash sha256:bf717f7...c51c14
+```
+
