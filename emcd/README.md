@@ -23,7 +23,7 @@ Conifgure dhcp 4 and 6.
     /mnt/platform-build/vemdc/etc/kea/kea-dhcp6.conf
 ```
 
-Change ipxe.efi to snponly.efi in all bootname_url config entries. This is for bios types where native uefi drivers preferred.
+Change ipxe.efi to snponly.efi in all bootname_url config entries. This is for the cases when ipxe does not have native drivers (e.g. amd-xgbe) and therefore native uefi drivers preferred.
 
     http://192.168.22.2:8080/assets/ipxe.efi
     http://[fd00:22::2]:8080/assets/ipxe.efi
