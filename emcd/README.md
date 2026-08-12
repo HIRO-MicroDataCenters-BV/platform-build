@@ -9,7 +9,8 @@
 ```
 
 ### Configure netplan
-    Configure mac address and interface name of the primary interface and copy the netplan config
+Configure mac address and interface name of the primary interface and copy the netplan config
+
 ```bash
     sudo cp /mnt/platform-build/emdc/etc/00-installer-config.yaml /etc/netplan/
     sudo netplan apply
@@ -17,7 +18,8 @@
 
 ### Configure DHCP4/6
 
-Conifgure dhcp 4 and 6.
+Configure dhcp4/6.
+
 ```bash
     /mnt/platform-build/vemdc/etc/kea/kea-dhcp4.conf
     /mnt/platform-build/vemdc/etc/kea/kea-dhcp6.conf
@@ -45,17 +47,26 @@ Copy filesystem.squashfs, vmlinuz and initrd.img to `/mnt/platform-build/vemdc/m
 
 ## Install and configure components
 
-### Install dependencies to head node
+### Dependencies
+
+Install dependencies to head node
+
 ```bash
     sudo /mnt/platform-build/vemdc/bin/head.sh install_dependencies
 ```
 
-### Configure Netboot, DHCP, Matchbox and other services
+### Head node configuration
+
+Configure Netboot, DHCP, Matchbox and other services
+
 ```bash
     sudo /mnt/platform-build/vemdc/bin/head.sh setup
 ```
 
 ### Configure kubeconfig
+
+Configure kubeconfig
+
 ```bash
     /mnt/platform-build/vemdc/bin/head.sh configure_kubectl
 ```
