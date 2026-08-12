@@ -22,7 +22,7 @@
 
 ## Build Worker Squash Filesystem
 
-Build squashfs. Check [README.md](vemdc/squashfs/README.md) for details. 
+Build squashfs. Check [README.md](squashfs/README.md) for details. 
 
 ## Boot Head Node
 
