@@ -24,13 +24,13 @@
 
 Build squashfs. Check [README.md](squashfs/README.md) for details. 
 
-## Boot Head Node
+# Boot Head Node
 
 ```bash
     vemdc/bin/emdc.sh launch_head
 ```
 
-# Install head node VM
+## Install head node VM
 
 ```bash
     ssh ubuntu@192.168.22.2
