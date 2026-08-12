@@ -1,6 +1,6 @@
 # Virtual EMDC environment
 
-# prerequisites
+# Prerequisites
 
 - ubuntu 26.04 (tested)
 - head vm - 4 cpu, 8gb RAM, 20 Gb
@@ -8,7 +8,7 @@
 
 # Host node setup
 
-# Install dependencies
+## Install dependencies
 
 ```bash
     vemdc/bin/emdc.sh install_dependencies
