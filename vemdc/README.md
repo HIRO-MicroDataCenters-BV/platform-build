@@ -20,6 +20,10 @@
     vemdc/bin/emdc.sh create_network
 ```
 
+## Build Worker Squash Filesystem
+
+Build squashfs. Check [README.md](vemdc/squashfs/README.md) for details. 
+
 ## Boot Head Node
 
 ```bash
