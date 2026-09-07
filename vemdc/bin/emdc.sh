@@ -11,7 +11,7 @@ SEED_ISO_BUNDLE_ROOT="${ETC_DIR}/seed"
 MATCHBOX_WORKER_GROUP_ROOT="${ROOT_DIR}/matchbox/matchbox_data/groups"
 
 usage() {
-    echo "Usage: $0 {install_dependencies|create_network|launch_head|launch_worker 0X}"
+    echo "Usage: $0 {install_dependencies|create_network|launch_head|launch_worker 0X|launch_gpu_worker 0X GPU_PCI_ID GPU_AUDIO_PCI_ID}"
     exit 1
 }
 
@@ -43,6 +43,12 @@ main() {
                 usage
             fi
             launch_worker $2
+            ;;
+        launch_gpu_worker)
+            if [ $# -ne 4 ]; then
+                usage
+            fi
+            launch_gpu_worker $2 $3 $4
             ;;
         *)
             echo "Error: Invalid command '$1'"
@@ -95,7 +101,7 @@ launch_head() {
     make_iso
 
     cp "${UBUNTU_CLOUD_IMG_DEST}/resolute-server-cloudimg-amd64.img" "${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img"
-    qemu-img resize "${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img" +10G
+    qemu-img resize "${UBUNTU_CLOUD_IMG_DEST}/${HEAD_NAME}.img" +20G
 
     # copy image
     virt-install \
@@ -135,6 +141,36 @@ EOF
 
 }
 
+launch_gpu_worker() {
+    WORKER_ID=${1?Worker id is expected. e.g. 01}
+    GPU_PCI=${2?GPU PCI id is expected. e.g. 17:00.0}
+    GPU_AUDIO_PCI=${3?GPU PCI id is expected. e.g. 17:00.1}
+    
+    MAC_ADDRESS=$(printf '52:54:00:%02x:%02x:%02x' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)))
+    UUID=$(uuidgen)
+    WORKER_NAME="worker-${WORKER_ID}"
+
+    setup_worker "${WORKER_NAME}" "${UUID}"
+
+    virt-install \
+        --name=${WORKER_NAME} \
+        --uuid=${UUID} \
+        --machine=q35 \
+        --vcpus=4 \
+        --memory=8192 \
+        --memorybacking=source.type=memfd,access.mode=shared \
+        --cpu host-passthrough \
+        --network network=emdc-net,mac=${MAC_ADDRESS},model=virtio \
+        --boot loader=/usr/share/OVMF/OVMF_CODE_4M.fd,loader.readonly=yes,loader.type=pflash,nvram.template=/usr/share/OVMF/OVMF_VARS_4M.fd,bootmenu.enable=yes \
+        --boot network \
+        --disk size=30,bus=virtio,cache=none,discard=unmap \
+        --hostdev=${GPU_PCI} \
+        --hostdev=${GPU_AUDIO_PCI} \
+        --features kvm_hidden=on \
+        --os-variant=generic \
+        --noautoconsole
+}
+
 launch_worker() {
     WORKER_ID=${1?Worker id is expected. e.g. 01}
     MAC_ADDRESS=$(printf '52:54:00:%02x:%02x:%02x' $((RANDOM%256)) $((RANDOM%256)) $((RANDOM%256)))
@@ -154,7 +190,6 @@ launch_worker() {
         --disk size=20,bus=virtio,cache=none,discard=unmap \
         --os-variant=generic \
         --noautoconsole
-
 }
 
 make_iso() {

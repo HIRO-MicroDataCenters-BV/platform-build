@@ -15,7 +15,7 @@ sudo ./build.sh install
 ## Cleanup 
 
 ```bash
-./build.sh cleanup
+sudo ./build.sh cleanup
 ```
 
 ## Build filesystem

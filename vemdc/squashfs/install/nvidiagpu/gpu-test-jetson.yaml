@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jetson-gpu-test
+spec:
+  containers:
+  - name: cuda-container
+    image: nvcr.io/nvidia/l4t-cuda:12.2.2-runtime # Use L4T/Jetson-compatible base images
+    resources:
+      limits:
+        nvidia.com/gpu: 1
