@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pytorch-modern-test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: pytorch-container
+      image: nvidia/cuda:12.8.0-devel-ubuntu24.04
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e
+          echo "=== 1. Preparing Environment ==="
+          apt-get update && apt-get install -y python3 python3-pip
+
+          echo "=== 2. Pre-installing CUDA Runtime Dependencies ==="
+          python3 -m pip install --no-cache-dir --break-system-packages \
+            numpy pillow typing_extensions sympy jinja2 networkx fsspec filelock \
+            nvidia-cudnn-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvshmem-cu12 \
+            triton cuda-bindings cuda-toolkit
+
+          echo "=== 3. Installing PyTorch Nightly Wheels ==="
+          python3 -m pip install --no-cache-dir --break-system-packages --pre \
+            torch torchvision torchaudio --no-deps \
+            --index-url https://download.pytorch.org/whl/nightly/cu128
+
+          echo "=== 4. Executing Matrix Multiplication Test ==="
+          python3 -c "
+          import torch
+          import time
+
+          print(f'PyTorch Nightly Version: {torch.__version__}')
+          device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+          print(f'Running test on device: {device}')
+
+          if device.type == 'cuda':
+              print(f'GPU Name: {torch.cuda.get_device_name(0)}')
+
+          N = 4096
+          print(f'Initializing random matrices of size {N}x{N}...')
+          A = torch.randn(N, N, device=device, dtype=torch.float32)
+          B = torch.randn(N, N, device=device, dtype=torch.float32)
+
+          # Warmup run
+          _ = torch.matmul(A, B)
+          if device.type == 'cuda':
+              torch.cuda.synchronize()
+
+          # Timed benchmark
+          start_time = time.time()
+          iterations = 20
+          for _ in range(iterations):
+              C = torch.matmul(A, B)
+
+          if device.type == 'cuda':
+              torch.cuda.synchronize()
+
+          elapsed = (time.time() - start_time) / iterations
+          print(f'Average Matrix Multiplication Time: {elapsed * 1000:.2f} ms')
+          print('Matrix Multiplication Test PASSED!')
+          "
+      resources:
+        limits:
+          nvidia.com/gpu: 1

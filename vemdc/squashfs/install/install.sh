@@ -12,6 +12,9 @@
 #### Configure kubernetes
 /bin/bash /install/kubernetes/install.sh
 
+#### Configure GPU
+/bin/bash /install/nvidiagpu/install.sh
+
 #### initramfs - persistence
 /bin/bash /install/initramfs/install.sh
 

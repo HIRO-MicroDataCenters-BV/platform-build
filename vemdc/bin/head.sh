@@ -133,6 +133,24 @@ install_k9s() {
     echo "k9s installed"
 }
 
+install_helm() {
+    echo "Installing helm..."
+
+    wget "https://get.helm.sh/helm-v4.2.4-linux-amd64.tar.gz" -O /tmp/helm-v4.2.4-linux-amd64.tar.gz
+    tar -xzf /tmp/helm-v4.2.4-linux-amd64.tar.gz -C /tmp/
+    mv /tmp/linux-amd64/helm /usr/local/bin/helm
+    sudo chmod +x /usr/local/bin/helm
+
+    echo "Helm installed..."
+
+    echo "Adding nvidia repo..."
+    
+    helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+    helm repo update
+
+    echo "Nvidia repo added."
+}
+
 configure_kea() {
     echo "Installing kea dhcp4/dhcp6..."
     cp ${ETC_DIR}/kea/* /etc/kea/
@@ -217,6 +235,7 @@ setup() {
     configure_ipxe_boot
     configure_node_agent
     install_k9s
+    install_helm
 }
 
 configure_kubectl() {

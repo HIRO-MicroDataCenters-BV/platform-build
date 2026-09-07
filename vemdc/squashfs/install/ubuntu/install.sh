@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+DEBIAN_FRONTEND=noninteractive
+TZ=Etc/UTC
+
 cat <<EOF > /etc/apt/sources.list
 deb http://nl.archive.ubuntu.com/ubuntu/ resolute main restricted universe multiverse
 deb http://nl.archive.ubuntu.com/ubuntu/ resolute-updates main restricted universe multiverse
@@ -19,6 +22,9 @@ apt install -y --no-install-recommends \
 	wget \
 	curl \
 	parted \
+	zstd \
+	kmod \
+	pciutils \
 	vim
 
 # configure root
