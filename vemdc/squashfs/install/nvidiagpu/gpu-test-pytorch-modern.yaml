@@ -4,6 +4,7 @@ metadata:
   name: pytorch-modern-test
 spec:
   restartPolicy: Never
+  #runtimeClassName: nvidia
   containers:
     - name: pytorch-container
       image: nvidia/cuda:12.8.0-devel-ubuntu24.04

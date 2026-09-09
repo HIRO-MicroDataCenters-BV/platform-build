@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 helm install gpu-operator \
   -n gpu-operator --create-namespace \
   nvidia/gpu-operator \

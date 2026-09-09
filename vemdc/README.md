@@ -4,7 +4,8 @@
 
 - ubuntu 26.04 (tested)
 - head vm - 4 cpu, 8gb RAM, 20 Gb
-- worker vm - minimal 4 cpu core, 8Gb RAM, 20Gb disk drive
+- worker vm - minimal 4 cpu core, 8Gb RAM, 30Gb disk drive
+- GPU worker vm - minimal 4 cpu core, 8Gb RAM, 30Gb disk drive, extra NVIDIA GPU per worker VM
 
 # Host node setup
 
