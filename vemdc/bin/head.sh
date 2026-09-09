@@ -148,6 +148,9 @@ install_helm() {
     helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
     helm repo update
 
+    helm repo add nvidia-k8s-device-plugin https://nvidia.github.io/k8s-device-plugin
+    helm repo update
+
     echo "Nvidia repo added."
 }
 

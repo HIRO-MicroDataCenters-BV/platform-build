@@ -4,10 +4,14 @@ metadata:
   name: gpu-test
 spec:
   restartPolicy: OnFailure
+  #runtimeClassName: nvidia
   containers:
   - name: cuda-container
     image: nvidia/cuda:12.4.1-base-ubuntu22.04
     command: ["nvidia-smi"]
+    env:
+    - name: NVIDIA_DRIVER_CAPABILITIES
+      value: "compute,utility"
     resources:
       limits:
         nvidia.com/gpu: 1

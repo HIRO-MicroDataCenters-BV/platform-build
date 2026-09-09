@@ -22,4 +22,4 @@ echo "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] h
 apt update
 apt install -y nvidia-container-toolkit
 
-nvidia-ctk runtime configure --runtime=containerd
+nvidia-ctk runtime configure --runtime=containerd --drop-in-config=/etc/containerd/conf.d/98-nvidia.toml
