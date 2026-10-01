@@ -9,6 +9,10 @@
 
 # Host node setup
 
+## Generate certificates
+
+Check [README.md](etc/node_agent/README.md) for details. 
+
 ## Install dependencies
 
 ```bash
@@ -26,6 +30,8 @@
 Build squashfs. Check [README.md](squashfs/README.md) for details. 
 
 # Boot Head Node
+
+## Launch head node VM
 
 ```bash
     vemdc/bin/emdc.sh launch_head
@@ -50,8 +56,22 @@ Build squashfs. Check [README.md](squashfs/README.md) for details.
 ```bash
     /mnt/platform-build/vemdc/bin/head.sh configure_kubectl
 ```
+## Generate node_agent join command
 
-## Generate join command
+```bash
+    sudo node_agent join print
+```
+
+    This will output like below:
+
+```bash
+    node_agent join node \
+    --token 686561642d6e6f64650a313...2e7e17ead4ce4f64d043024e4f93bf2469 \
+    --node-id head-node \
+    --head https://192.168.22.2:51015
+```
+
+## Generate kube join command
 ```bash
     sudo kubeadm token create --print-join-command
 ```
@@ -64,7 +84,6 @@ the kubeadm will print join command similar to the one below
         --discovery-token-ca-cert-hash sha256:bf717f7...c51c14
 ```
 
-
 # Worker Node VM
 
 ## Launch Worker 
@@ -73,7 +92,17 @@ the kubeadm will print join command similar to the one below
     vemdc/bin/emdc.sh launch_worker 01
 ```
 
-## Execute join command on a worker
+## Execute node agent join command on a worker
+
+```bash
+    sudo node_agent join node \
+    --token 686561642d6e6f64650a313...2e7e17ead4ce4f64d043024e4f93bf2469 \
+    --node-id head-node \
+    --head https://192.168.22.2:51015
+```
+
+
+## Execute kube join command on a worker
 
 ```bash
     sudo kubeadm join 192.168.22.2:6443 \
