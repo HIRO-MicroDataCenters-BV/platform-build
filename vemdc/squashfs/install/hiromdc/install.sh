@@ -17,5 +17,12 @@ apt install -y \
     node-agent \
     containerd-fuse-overlayfs
 
+rm /var/lib/node_agent/cert/server/*
+
+cp ${INSTALL_DIR}/hiromdc/cert/ca.crt /var/lib/node_agent/cert/server
+cp ${INSTALL_DIR}/hiromdc/cert/ca.key /var/lib/node_agent/cert/server
+
+node_agent certs init-server
+
 systemctl enable --now containerd-fuse-overlayfs
 systemctl enable --now node_agent

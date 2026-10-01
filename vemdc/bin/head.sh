@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 TARGET="${ROOT_DIR}/target"
 ETC_DIR="${ROOT_DIR}/etc"
+CA_CERT_DIR="${ROOT_DIR}/etc/node_agent"
 
 usage() {
     echo "Usage: $0 {install_dependencies|setup|configure_kubectl}"
@@ -88,6 +89,16 @@ EOF
 
 configure_node_agent() {
     echo "Node agent..."
+
+    NODE_AGENT_SERVER_CERT_DIR=/var/lib/node_agent/cert/server
+    
+    sudo rm ${NODE_AGENT_SERVER_CERT_DIR}/*
+    sudo mkdir ${NODE_AGENT_SERVER_CERT_DIR}
+
+    sudo cp ${ETC_DIR}/node_agent/ca.crt ${NODE_AGENT_SERVER_CERT_DIR}
+    sudo cp ${ETC_DIR}/node_agent/ca.key ${NODE_AGENT_SERVER_CERT_DIR}
+
+    sudo node_agent certs init-server
 
     sudo systemctl daemon-reload
     sudo systemctl enable --now libvirtd

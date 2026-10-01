@@ -4,6 +4,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT_DIR="${SCRIPT_DIR}/.."
 ROOT_DIR=${SCRIPT_DIR}/diskless/chroot
 BUILD_DIR=${SCRIPT_DIR}/diskless/build
+CA_CERT_SRC_DIR="${PROJECT_ROOT_DIR}/etc/node_agent"
+CA_CERT_INSTALL_DIR="${ROOT_DIR}/install/hiromdc/cert"
 
 DISTRO=resolute
 DISTRO_URL=http://nl.archive.ubuntu.com/ubuntu/
@@ -31,6 +33,8 @@ install() {
 	mount -t sysfs sysfs ${ROOT_DIR}/sys
 
 	# Chroot and Configure Repositories
+	mkdir -p "${CA_CERT_INSTALL_DIR}"
+	cp ${CA_CERT_SRC_DIR}/ca.* "${CA_CERT_INSTALL_DIR}/"
 	cp -r ${SCRIPT_DIR}/install ${ROOT_DIR}
 	chroot ${ROOT_DIR} /bin/bash /install/install.sh
 }
