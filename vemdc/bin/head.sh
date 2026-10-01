@@ -67,8 +67,6 @@ EOF
         containerd \
         matchbox \
         ipxe-boot \
-        libvirt-daemon \
-        libvirt-daemon-driver-qemu \
         node-agent
 
     ### Installing kubernetes ###
