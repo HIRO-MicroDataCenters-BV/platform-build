@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT_DIR="${SCRIPT_DIR}/.."
 ROOT_DIR=${SCRIPT_DIR}/diskless/chroot
 BUILD_DIR=${SCRIPT_DIR}/diskless/build
+TARGET_DIR=${SCRIPT_DIR}/../target
 CA_CERT_SRC_DIR="${PROJECT_ROOT_DIR}/etc/node_agent"
 CA_CERT_INSTALL_DIR="${ROOT_DIR}/install/hiromdc/cert"
 
@@ -80,6 +81,25 @@ upload() {
 	cp ${BUILD_DIR}/* ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/
 	echo "kernel, initramfs, squashfs have been copied to matchbox assets."
 	ls -ltra ${PROJECT_ROOT_DIR}/matchbox/matchbox_data/assets/ubuntu-26-live/*
+}
+
+build_bundle() {
+	NAME="ubuntu-26-diskless-squashfs"
+	BUNDLE_SRC="$BUILD_DIR"
+	OUT_ZIP="$TARGET_DIR/$NAME.zip"
+
+	if [[ ! -d "$BUNDLE_SRC" ]]; then
+		echo "error: no build dir at $BUNDLE_SRC" >&2
+		exit 1
+	fi
+
+	mkdir -p "$TARGET_DIR"
+
+	(cd "$BUNDLE_SRC" && zip -q -r -D "$OUT_ZIP" *)
+
+	echo "Staged squashfs bundle zip into $OUT_ZIP"
+	echo "Contents:"
+	unzip -l "$OUT_ZIP"
 }
 
 "$@"
