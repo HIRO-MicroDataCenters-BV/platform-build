@@ -3,6 +3,9 @@
 #### Configure ubuntu system
 /bin/bash /install/ubuntu/install.sh
 
+#### Configure Set-Hostname service
+/bin/bash /install/set-hostname/install.sh
+
 #### Configure HIRO packages
 /bin/bash /install/hiromdc/install.sh
 
