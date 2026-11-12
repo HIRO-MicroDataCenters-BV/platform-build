@@ -29,3 +29,9 @@ sudo ./build.sh build
 ```bash
 ./build.sh upload
 ```
+
+## Build diskless bundle
+
+```bash
+./build.sh build_bundle
+```

@@ -1,0 +1,16 @@
+[Unit]
+Description=Set worker hostname from k8s-hostname kernel arg
+# Run once the live overlay has mounted the rw root (so /etc is copy-up-able).
+After=local-fs.target systemd-remount-fs.service
+Before=node_agent.service
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/set-hostname.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
